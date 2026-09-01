@@ -1,0 +1,21 @@
+{
+  "name": "mindmap-studio",
+  "version": "1.0.0",
+  "description": "Studio \u2014 Research, Knowledge, E-Reader & Thinking Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "deploy:firebase": "firebase deploy",
+    "deploy:vercel": "vercel --prod"
+  },
+  "keywords": [
+    "research",
+    "whiteboard",
+    "epub-reader",
+    "pdf-reader",
+    "knowledge-base",
+    "mindmap"
+  ],
+  "author": "",
+  "license": "MIT"
+}
