@@ -2942,6 +2942,53 @@
       await switchTopic(id);
     }
   }
+  // Project Selector Management
+  function renderProjectSelect(){
+    projectSelectEl.innerHTML = '';
+    projects.forEach(p => {
+      const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name;
+      if(p.id === activeProjectId) opt.selected = true;
+      projectSelectEl.appendChild(opt);
+    });
+  }
+
+  projectSelectEl.addEventListener('change', e => {
+    activeProjectId = projectSelectEl.value;
+    renderSidebar();
+    const visibleTopics = topicsIndex.filter(t => t.projectId === activeProjectId);
+    if(visibleTopics.length > 0 && !visibleTopics.some(t => t.id === currentTopicId)){
+      switchTopic(visibleTopics[0].id);
+    }
+  });
+
+  document.getElementById('btn-add-project').addEventListener('click', async () => {
+    const name = prompt('Enter new workspace project name:', 'New Project');
+    if(name && name.trim()){
+      const pId = 'proj_' + genId();
+      projects.push({ id: pId, name: name.trim() });
+      await Storage.set('mapboard-projects', JSON.stringify(projects));
+      activeProjectId = pId;
+      renderProjectSelect();
+      
+      // Create fresh blank topic for the new project
+      const tId = genId();
+      const color = PALETTE[topicsIndex.length % PALETTE.length];
+      topicsIndex.push({ id: tId, name: name.trim() + ' Board', color, projectId: pId, updatedAt: Date.now() });
+      await Storage.set('mapboard-index', JSON.stringify(topicsIndex));
+      
+      const cleanBoard = {
+        nodes: [],
+        edges: [],
+        transform: { x:0, y:0, scale:1 },
+        mindmapTree: { id: 'root', text: name.trim(), collapsed: false, children: [] }
+      };
+      await Storage.set('mapboard-board-' + tId, JSON.stringify(cleanBoard));
+      renderSidebar();
+      await switchTopic(tId);
+      triggerCloudSync(true);
+    }
+  });
+
   document.getElementById('btn-clear-canvas').addEventListener('click', ()=>{
     if(confirm('Are you sure you want to clear all cards, browsers, and shapes from this whiteboard?')){
       state.nodes = [];
@@ -3810,19 +3857,14 @@
     }
     initFirebase();
 
-    projectSelectEl.innerHTML = '';
-    projects.forEach(p => {
-      const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name;
-      projectSelectEl.appendChild(opt);
-    });
+    renderProjectSelect();
 
     const board = await loadTopicBoard(currentTopicId);
     state = board || {
-      nodes: [
-        { id:genId(), type:'card', x:100, y:60, w:220, text:'Central Research Theme', color:'#3F7268', tags:[], links:[] }
-      ],
+      nodes: [],
       edges: [],
-      transform: {x:0,y:0,scale:1}
+      transform: { x:0, y:0, scale:1 },
+      mindmapTree: { id: 'root', text: topicsIndex[0].name, collapsed: false, children: [] }
     };
 
     applyTransform();
