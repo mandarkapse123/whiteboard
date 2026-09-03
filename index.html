@@ -2670,8 +2670,14 @@
   }
 
   // ---------------- CLOUD BACKEND (FIREBASE FIRESTORE & SUPABASE) ----------------
+  let firestoreUnsubscribe = null;
+
   function initFirebase(){
-    if(!window.firebase || !cloudConfig.firebase || !cloudConfig.firebase.projectId || !cloudConfig.firebase.apiKey) return false;
+    if(!window.firebase || !cloudConfig.firebase || !cloudConfig.firebase.projectId) return false;
+    if(!cloudConfig.firebase.apiKey){
+      updateSaveStatusUI();
+      return false;
+    }
     try{
       if(!firebase.apps.length){
         firebaseApp = firebase.initializeApp(cloudConfig.firebase);
@@ -2679,6 +2685,28 @@
         firebaseApp = firebase.app();
       }
       firestoreDb = firebase.firestore();
+      
+      // Real-time remote updates listener
+      if(firestoreDb && !firestoreUnsubscribe){
+        const colName = cloudConfig.firebase.collection || 'studios';
+        const docName = cloudConfig.firebase.docId || 'workspace_main';
+        firestoreUnsubscribe = firestoreDb.collection(colName).doc(docName).onSnapshot(docSnap => {
+          if(docSnap.exists && docSnap.data()){
+            const raw = docSnap.data();
+            const snapshotData = typeof raw.data === 'string' ? JSON.parse(raw.data) : raw.data;
+            if(snapshotData && snapshotData.timestamp && (!state.lastRemoteSync || snapshotData.timestamp > state.lastRemoteSync)){
+              state.lastRemoteSync = snapshotData.timestamp;
+              // Silently sync background updates if not currently dragging
+              if(!dragState && !resizeState && !panState){
+                saveStatusText.textContent = '🔥 Synced';
+              }
+            }
+          }
+        }, err => {
+          console.warn('Firestore real-time listener note:', err.message);
+        });
+      }
+      saveStatusText.textContent = '🔥 Synced';
       return true;
     }catch(e){
       console.warn('Firebase init error:', e);
@@ -2686,27 +2714,45 @@
     }
   }
 
+  function updateSaveStatusUI(){
+    if(cloudConfig.provider === 'firebase'){
+      if(cloudConfig.firebase.apiKey && firestoreDb){
+        saveStatusText.textContent = '🔥 Synced';
+      } else {
+        saveStatusText.textContent = '☁️ Setup Firebase';
+      }
+    } else if(cloudConfig.supabase.url && cloudConfig.supabase.key){
+      saveStatusText.textContent = '⚡ Synced';
+    } else {
+      saveStatusText.textContent = 'Local Saved';
+    }
+  }
+
   function openCloudModal(){
     const modal = document.createElement('div'); modal.className = 'modal-backdrop';
     const isFirebase = cloudConfig.provider === 'firebase';
     
-    modal.innerHTML = '<div class="modal-dialog" style="width:560px;">' +
+    modal.innerHTML = '<div class="modal-dialog" style="width:580px;">' +
       '<div style="display:flex; justify-content:space-between; align-items:center;">' +
-      '<h2 class="modal-title">☁️ Cloud Backend & Sync</h2>' +
+      '<h2 class="modal-title">☁️ Firebase & Cloud Sync</h2>' +
       '<div style="display:flex; gap:4px; background:var(--bg); padding:3px; border-radius:8px; border:1px solid var(--panel-border);">' +
       '<button id="tab-fb" class="btn-secondary" style="padding:4px 10px; font-size:11px;' + (isFirebase?'background:var(--ink); color:var(--bg); font-weight:600;':'') + '">🔥 Firebase</button>' +
       '<button id="tab-sb" class="btn-secondary" style="padding:4px 10px; font-size:11px;' + (!isFirebase?'background:var(--ink); color:var(--bg); font-weight:600;':'') + '">⚡ Supabase</button>' +
       '</div></div>' +
-      '<div class="modal-desc">Backup and sync your books, bookmarks, highlights, articles, genres, and whiteboard canvases across devices in real time.</div>' +
+      '<div class="modal-desc">Sync your entire library (books, highlights, notes, articles, and whiteboards) in real time to your Firebase project.</div>' +
 
       '<!-- FIREBASE CONFIG -->' +
       '<div id="fb-fields" style="' + (isFirebase ? 'display:flex; flex-direction:column; gap:10px;' : 'display:none;') + '">' +
-      '<div class="modal-field"><label>Paste Firebase Config Object (JSON / JS)</label><textarea id="fb-json-paste" rows="3" placeholder="Paste { apiKey: \"...\", projectId: \"...\", ... }"></textarea></div>' +
+      '<div class="modal-field"><label>Paste Firebase Config Object (from Firebase Console)</label>' +
+      '<textarea id="fb-json-paste" rows="3" placeholder="Paste const firebaseConfig = { apiKey: \"...\", projectId: \"...\", ... };"></textarea></div>' +
       '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">' +
-      '<div class="modal-field"><label>Project ID</label><input id="fb-project-id" placeholder="my-studio-app" value="' + (cloudConfig.firebase.projectId || '') + '"></div>' +
-      '<div class="modal-field"><label>API Key</label><input id="fb-api-key" placeholder="AIzaSy..." value="' + (cloudConfig.firebase.apiKey || '') + '"></div>' +
-      '<div class="modal-field"><label>Auth Domain</label><input id="fb-auth-domain" placeholder="my-studio-app.firebaseapp.com" value="' + (cloudConfig.firebase.authDomain || '') + '"></div>' +
-      '<div class="modal-field"><label>Firestore Doc ID</label><input id="fb-doc-id" placeholder="workspace_main" value="' + (cloudConfig.firebase.docId || 'workspace_main') + '"></div>' +
+      '<div class="modal-field"><label>Firebase API Key</label><input id="fb-api-key" placeholder="AIzaSy..." value="' + (cloudConfig.firebase.apiKey || '') + '"></div>' +
+      '<div class="modal-field"><label>Project ID</label><input id="fb-project-id" placeholder="whiteboard-c6f38" value="' + (cloudConfig.firebase.projectId || 'whiteboard-c6f38') + '"></div>' +
+      '<div class="modal-field"><label>Auth Domain</label><input id="fb-auth-domain" placeholder="whiteboard-c6f38.firebaseapp.com" value="' + (cloudConfig.firebase.authDomain || 'whiteboard-c6f38.firebaseapp.com') + '"></div>' +
+      '<div class="modal-field"><label>Firestore Document ID</label><input id="fb-doc-id" placeholder="workspace_main" value="' + (cloudConfig.firebase.docId || 'workspace_main') + '"></div>' +
+      '</div>' +
+      '<div style="font-size:11px; color:var(--muted); background:var(--bg); padding:8px 12px; border-radius:6px; border:1px solid var(--panel-border);">' +
+      '💡 <b>Where to find API Key:</b> Firebase Console ➔ Project Settings (⚙️) ➔ Scroll to "Your apps" ➔ Web app ➔ copy <code>apiKey</code>.' +
       '</div></div>' +
 
       '<!-- SUPABASE CONFIG -->' +
@@ -2719,7 +2765,7 @@
       '<div class="modal-actions" style="margin-top:12px;">' +
       '<button class="btn-secondary" id="cloud-cancel">Close</button>' +
       '<button class="btn-secondary" id="cloud-restore">📥 Restore from Cloud</button>' +
-      '<button class="btn-primary" id="cloud-save">☁️ Save & Sync Now</button></div></div>';
+      '<button class="btn-primary" id="cloud-save">☁️ Connect & Sync Now</button></div></div>';
 
     document.body.appendChild(modal);
 
@@ -2748,10 +2794,10 @@
         if(raw.startsWith('const') || raw.startsWith('var') || raw.startsWith('let')) raw = raw.substring(raw.indexOf('{'));
         if(raw.endsWith(';')) raw = raw.slice(0, -1);
         const obj = Function('"use strict";return (' + raw + ')')();
-        if(obj && obj.projectId){
-          modal.querySelector('#fb-project-id').value = obj.projectId || '';
-          modal.querySelector('#fb-api-key').value = obj.apiKey || '';
-          modal.querySelector('#fb-auth-domain').value = obj.authDomain || '';
+        if(obj){
+          if(obj.apiKey) modal.querySelector('#fb-api-key').value = obj.apiKey;
+          if(obj.projectId) modal.querySelector('#fb-project-id').value = obj.projectId;
+          if(obj.authDomain) modal.querySelector('#fb-auth-domain').value = obj.authDomain;
         }
       }catch(e){}
     });
@@ -2760,9 +2806,9 @@
 
     modal.querySelector('#cloud-save').addEventListener('click', async ()=>{
       if(cloudConfig.provider === 'firebase'){
-        cloudConfig.firebase.projectId = modal.querySelector('#fb-project-id').value.trim();
+        cloudConfig.firebase.projectId = modal.querySelector('#fb-project-id').value.trim() || 'whiteboard-c6f38';
         cloudConfig.firebase.apiKey = modal.querySelector('#fb-api-key').value.trim();
-        cloudConfig.firebase.authDomain = modal.querySelector('#fb-auth-domain').value.trim();
+        cloudConfig.firebase.authDomain = modal.querySelector('#fb-auth-domain').value.trim() || 'whiteboard-c6f38.firebaseapp.com';
         cloudConfig.firebase.docId = modal.querySelector('#fb-doc-id').value.trim() || 'workspace_main';
         initFirebase();
       } else {
@@ -2782,6 +2828,9 @@
   }
 
   document.getElementById('btn-open-cloud').addEventListener('click', openCloudModal);
+  document.querySelector('.nav-save-pill').addEventListener('click', openCloudModal);
+  document.querySelector('.nav-save-pill').style.cursor = 'pointer';
+  document.querySelector('.nav-save-pill').title = 'Click to configure Cloud Backend Sync';
 
   async function triggerCloudSync(immediate){
     saveStatusText.textContent = 'Syncing...';
@@ -2796,7 +2845,7 @@
     }
 
     if(cloudConfig.provider === 'firebase'){
-      if(!firestoreDb && !initFirebase()){ saveStatusText.textContent = 'Local Saved'; return; }
+      if(!firestoreDb && !initFirebase()){ updateSaveStatusUI(); return; }
       try{
         const colName = cloudConfig.firebase.collection || 'studios';
         const docName = cloudConfig.firebase.docId || 'workspace_main';
@@ -2827,6 +2876,8 @@
       }catch(e){
         saveStatusText.textContent = 'Local Saved';
       }
+    } else {
+      updateSaveStatusUI();
     }
   }
 
@@ -2835,7 +2886,7 @@
     try{
       let snapshotData = null;
       if(cloudConfig.provider === 'firebase'){
-        if(!firestoreDb && !initFirebase()){ alert('Please enter your Firebase Project ID and API Key first.'); return; }
+        if(!firestoreDb && !initFirebase()){ alert('Please enter your Firebase API Key first.'); return; }
         const colName = cloudConfig.firebase.collection || 'studios';
         const docName = cloudConfig.firebase.docId || 'workspace_main';
         const docSnap = await firestoreDb.collection(colName).doc(docName).get();
@@ -2870,10 +2921,10 @@
         renderBooks();
         renderArticles();
         renderSidebar();
-        saveStatusText.textContent = '☁️ Restored';
+        saveStatusText.textContent = '🔥 Synced';
       } else {
-        alert('No backup snapshot found in cloud.');
-        saveStatusText.textContent = 'Local Saved';
+        alert('No backup snapshot found in Firestore yet. Syncing your current workspace now...');
+        triggerCloudSync(true);
       }
     }catch(e){
       alert('Cloud restore error: ' + e.message);
