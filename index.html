@@ -2835,6 +2835,14 @@
 
   async function triggerCloudSync(immediate){
     saveStatusText.textContent = 'Syncing...';
+    
+    // Timeout safeguard: never stay stuck on Syncing...
+    const syncTimeout = setTimeout(() => {
+      if(saveStatusText.textContent === 'Syncing...'){
+        saveStatusText.textContent = 'Local Saved';
+      }
+    }, 4000);
+
     const fullSnapshot = {
       version: '5.6',
       timestamp: new Date().toISOString(),
@@ -2846,7 +2854,11 @@
     }
 
     if(cloudConfig.provider === 'firebase'){
-      if(!firestoreDb && !initFirebase()){ updateSaveStatusUI(); return; }
+      if(!firestoreDb && !initFirebase()){
+        clearTimeout(syncTimeout);
+        updateSaveStatusUI();
+        return;
+      }
       try{
         const colName = cloudConfig.firebase.collection || 'studios';
         const docName = cloudConfig.firebase.docId || 'workspace_main';
@@ -2854,10 +2866,16 @@
           data: JSON.stringify(fullSnapshot),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
+        clearTimeout(syncTimeout);
         saveStatusText.textContent = '🔥 Synced';
       }catch(err){
+        clearTimeout(syncTimeout);
         console.warn('Firebase sync error:', err);
-        saveStatusText.textContent = 'Local Saved';
+        if(err.code === 'permission-denied'){
+          saveStatusText.textContent = '⚠️ Check Rules';
+        } else {
+          saveStatusText.textContent = 'Local Saved';
+        }
       }
     } else if(cloudConfig.supabase.url && cloudConfig.supabase.key){
       try{
@@ -2873,63 +2891,16 @@
           },
           body: JSON.stringify({ id: 'latest_backup', data: fullSnapshot, updated_at: new Date().toISOString() })
         });
+        clearTimeout(syncTimeout);
         if(resp.ok) saveStatusText.textContent = '⚡ Synced';
+        else saveStatusText.textContent = 'Local Saved';
       }catch(e){
+        clearTimeout(syncTimeout);
         saveStatusText.textContent = 'Local Saved';
       }
     } else {
+      clearTimeout(syncTimeout);
       updateSaveStatusUI();
-    }
-  }
-
-  async function restoreFromCloud(){
-    saveStatusText.textContent = 'Restoring...';
-    try{
-      let snapshotData = null;
-      if(cloudConfig.provider === 'firebase'){
-        if(!firestoreDb && !initFirebase()){ alert('Please enter your Firebase API Key first.'); return; }
-        const colName = cloudConfig.firebase.collection || 'studios';
-        const docName = cloudConfig.firebase.docId || 'workspace_main';
-        const docSnap = await firestoreDb.collection(colName).doc(docName).get();
-        if(docSnap.exists && docSnap.data()){
-          const raw = docSnap.data();
-          snapshotData = typeof raw.data === 'string' ? JSON.parse(raw.data) : raw.data;
-        }
-      } else if(cloudConfig.supabase.url && cloudConfig.supabase.key){
-        const cleanUrl = cloudConfig.supabase.url.replace(/\/+$/, '');
-        const endpoint = cleanUrl + '/rest/v1/' + (cloudConfig.supabase.tableName || 'mapboard_data') + '?id=eq.latest_backup&select=*';
-        const resp = await fetch(endpoint, {
-          headers: { 'apikey': cloudConfig.supabase.key, 'Authorization': 'Bearer ' + cloudConfig.supabase.key }
-        });
-        const data = await resp.json();
-        if(data && data.length && data[0].data) snapshotData = data[0].data;
-      }
-
-      if(snapshotData){
-        if(snapshotData.projects) projects = snapshotData.projects;
-        if(snapshotData.topicsIndex) topicsIndex = snapshotData.topicsIndex;
-        if(snapshotData.genres) genres = snapshotData.genres;
-        if(snapshotData.books) books = snapshotData.books;
-        if(snapshotData.articles) articles = snapshotData.articles;
-        if(snapshotData.boards){
-          for(const bId in snapshotData.boards){
-            await Storage.set('mapboard-board-'+bId, JSON.stringify(snapshotData.boards[bId]));
-          }
-        }
-        await scheduleSave();
-        alert('Studio platform restored from Cloud successfully!');
-        renderHome();
-        renderBooks();
-        renderArticles();
-        renderSidebar();
-        saveStatusText.textContent = '🔥 Synced';
-      } else {
-        alert('No backup snapshot found in Firestore yet. Syncing your current workspace now...');
-        triggerCloudSync(true);
-      }
-    }catch(e){
-      alert('Cloud restore error: ' + e.message);
-      saveStatusText.textContent = 'Local Saved';
     }
   }
 
@@ -2995,8 +2966,30 @@
     if(savedArticles) articles = JSON.parse(savedArticles);
 
     const savedCloud = await Storage.get('mapboard-cloud-config');
-    if(savedCloud) cloudConfig = JSON.parse(savedCloud);
-    if(cloudConfig.provider === 'firebase') initFirebase();
+    if(savedCloud){
+      try{
+        const parsed = JSON.parse(savedCloud);
+        if(parsed.firebase && parsed.firebase.apiKey){
+          cloudConfig = parsed;
+        }
+      }catch(e){}
+    }
+    // Always guarantee hardcoded Firebase credentials
+    if(!cloudConfig.firebase || !cloudConfig.firebase.apiKey){
+      cloudConfig.firebase = {
+        apiKey: "AIzaSyCUigsH-K4iKpnd3J9TTOlsbs8fAIypsIo",
+        authDomain: "whiteboard-c6f38.firebaseapp.com",
+        projectId: "whiteboard-c6f38",
+        storageBucket: "whiteboard-c6f38.firebasestorage.app",
+        messagingSenderId: "1059248312514",
+        appId: "1:1059248312514:web:b466372bcab83a0b032b5b",
+        measurementId: "G-58Z2TDCTNY",
+        collection: 'studios',
+        docId: 'workspace_main'
+      };
+      cloudConfig.provider = 'firebase';
+    }
+    initFirebase();
 
     projectSelectEl.innerHTML = '';
     projects.forEach(p => {
