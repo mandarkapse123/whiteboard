@@ -1109,67 +1109,24 @@
   const PALETTE = ['#3F7268','#C6862F','#4A5B8C','#B5555A','#6B8E4E','#8C5AA8','#3D7EA6','#A85C36'];
 
   let genres = [
-    { id:'gen_phil', name:'Philosophy', color:'#C6862F' },
-    { id:'gen_tech', name:'Technology & AI', color:'#3F7268' },
-    { id:'gen_sci', name:'Science & Nature', color:'#4A5B8C' },
-    { id:'gen_econ', name:'Economics', color:'#B5555A' },
-    { id:'gen_fict', name:'Fiction & Classics', color:'#8C5AA8' }
+    { id:'gen_general', name:'General', color:'#3F7268' },
+    { id:'gen_tech', name:'Technology', color:'#4A5B8C' },
+    { id:'gen_research', name:'Research & Papers', color:'#C6862F' }
   ];
 
-  let sampleChaptersMeditations = [
-    "Book I — Debts and Lessons\n\n1. From my grandfather Verus I learned good morals and the government of my temper.\n2. From the reputation and remembrance of my father, modesty and a manly character.\n3. From my mother, piety and beneficence, and abstinence, not only from evil deeds, but even from evil thoughts.",
-    "Book II — On the River Gran, Among the Quadi\n\nWhen you wake up in the morning, tell yourself: The people I deal with today will be meddling, ungrateful, arrogant, dishonest, jealous, and surly. They are like this because they cannot distinguish good from evil. But I have seen the beauty of good, and the ugliness of evil, and have recognized that the wrongdoer has a nature related to my own.",
-    "Book III — In Carnuntum\n\nWe ought to observe also that even the things which follow after the things which are produced according to nature contain something pleasing and attractive. For instance, when there is bread in the oven, some parts crack open on the surface; and these fissures, though in a manner contrary to the purpose of the baker, have a certain appropriateness.",
-    "Book IV — The Inner Citadel\n\nMen seek retreats for themselves, houses in the country, sea-shores, and mountains; and you too are wont to desire such things very much. But this is altogether a mark of the most common sort of men, since it is in your power whenever you choose to retire into yourself. For nowhere either with more quiet or more freedom from trouble does a man retire than into his own soul.",
-    "Book V — Rising to Work\n\nIn the morning when you rise unwillingly, let this thought be present: I am rising to the work of a human being. Why then am I dissatisfied if I am going to do the things for which I exist and for which I was brought into the world? Or was I made for this, to lie under the bedclothes and keep myself warm?"
-  ];
+  let books = [];
+  let articles = [];
 
-  let books = [
-    {
-      id: 'bk_1', title: 'Meditations', author: 'Marcus Aurelius', genreId: 'gen_phil',
-      format: 'EPUB', totalPages: sampleChaptersMeditations.length, currentPage: 1,
-      chapters: sampleChaptersMeditations,
-      content: sampleChaptersMeditations[0],
-      bookmarks: [{ id:'bm_1', page: 2, note: 'Foundational thoughts on morning mental preparation', excerpt:'When you wake up in the morning, tell yourself...' }],
-      highlights: [],
-      updatedAt: Date.now() - 40000000
-    },
-    {
-      id: 'bk_2', title: 'Gödel, Escher, Bach: An Eternal Golden Braid', author: 'Douglas Hofstadter', genreId: 'gen_tech',
-      format: 'PDF', totalPages: 12, currentPage: 1,
-      chapters: [
-        "Introduction: A Musico-Logical Offering\n\nIn 1747, Johann Sebastian Bach visited King Frederick the Great of Prussia in Potsdam. Frederick gave Bach a complex theme and asked him to improvise a three-part fugue on it. Bach succeeded brilliantly, and upon returning to Leipzig, elaborated the theme into a full suite: The Musical Offering.",
-        "Chapter 1: The MU-puzzle\n\nConsider a formal system with symbols M, I, and U. The starting string is MI. There are four transformation rules:\n1. If string ends with I, add U at the end.\n2. If string starts with Mx, form Mxx.\n3. Replace III with U.\n4. Drop UU if present.\nCan you produce the string MU?"
-      ],
-      content: 'A metaphorical fugue on minds and machines exploring self-reference and strange loops.',
-      bookmarks: [{ id:'bm_2', page: 2, note: 'The MU puzzle and formal axiomatic systems', excerpt:'Consider a formal system with symbols M, I, and U.' }],
-      highlights: [],
-      updatedAt: Date.now() - 80000000
-    }
-  ];
-
-  let articles = [
-    {
-      id: 'art_1', title: 'Attention Is All You Need', author: 'Vaswani et al. (Google Brain)',
-      url: 'https://arxiv.org/abs/1706.03762', topicId: 'gen_tech',
-      notes: 'The seminal paper introducing the Transformer architecture, replacing recurrent layers entirely with multi-head self-attention mechanisms.',
-      bookmarks: [], highlights: [],
-      updatedAt: Date.now() - 120000000
-    },
-    {
-      id: 'art_2', title: 'Socrates and the Unexamined Life', author: 'Plato',
-      url: 'https://en.wikipedia.org/wiki/Socrates', topicId: 'gen_phil',
-      notes: 'Explores the dialectical Socratic method of cooperative argumentative dialogue.',
-      bookmarks: [], highlights: [],
-      updatedAt: Date.now() - 150000000
-    }
-  ];
-
-  let projects = [{ id:'proj_default', name:'Main Project' }];
-  let activeProjectId = 'proj_default';
-  let topicsIndex = [{ id:'top_main', name:'Central Research Canvas', color:PALETTE[0], projectId:'proj_default', updatedAt:Date.now() }];
+  let projects = [{ id:'proj_main', name:'Main Project' }];
+  let activeProjectId = 'proj_main';
+  let topicsIndex = [{ id:'top_main', name:'Central Research Canvas', color:PALETTE[0], projectId:'proj_main', updatedAt:Date.now() }];
   let currentTopicId = 'top_main';
-  let state = { nodes: [], edges: [], transform: {x:0,y:0,scale:1} };
+  let state = {
+    nodes: [],
+    edges: [],
+    transform: { x:0, y:0, scale:1 },
+    mindmapTree: { id:'root', text:'Central Research Canvas', collapsed:false, children:[] }
+  };
   let selectedNodeId = null;
   let selectedEdgeId = null;
   let currentMode = 'HOME';
@@ -3078,10 +3035,12 @@
       '<div class="modal-field"><label>Table Name</label><input id="sb-table" value="' + (cloudConfig.supabase.tableName || 'mapboard_data') + '"></div>' +
       '</div>' +
 
-      '<div class="modal-actions" style="margin-top:12px;">' +
+      '<div class="modal-actions" style="margin-top:12px; justify-content:space-between;">' +
+      '<button class="btn-outline" id="cloud-reset-all" style="color:var(--destructive);" title="Clear local browser data">🗑️ Reset to Zero</button>' +
+      '<div style="display:flex; gap:6px;">' +
       '<button class="btn-secondary" id="cloud-cancel">Close</button>' +
       '<button class="btn-secondary" id="cloud-restore">📥 Restore from Cloud</button>' +
-      '<button class="btn-primary" id="cloud-save">☁️ Connect & Sync Now</button></div></div>';
+      '<button class="btn-primary" id="cloud-save">🔥 Connect & Sync Now</button></div></div></div>';
 
     document.body.appendChild(modal);
 
@@ -3116,6 +3075,23 @@
           if(obj.authDomain) modal.querySelector('#fb-auth-domain').value = obj.authDomain;
         }
       }catch(e){}
+    });
+
+    modal.querySelector('#cloud-reset-all').addEventListener('click', async ()=>{
+      if(confirm('Reset all local data and start completely fresh?')){
+        books = []; articles = [];
+        state = { nodes:[], edges:[], transform:{x:0,y:0,scale:1}, mindmapTree:{ id:'root', text: topicsIndex[0].name, collapsed:false, children:[] } };
+        await Storage.set('mapboard-books', JSON.stringify([]));
+        await Storage.set('mapboard-articles', JSON.stringify([]));
+        await Storage.set('mapboard-board-' + currentTopicId, JSON.stringify(state));
+        modal.remove();
+        renderAll();
+        renderHome();
+        renderBooks();
+        renderArticles();
+        triggerCloudSync(true);
+        alert('Workspace reset to clean slate!');
+      }
     });
 
     modal.querySelector('#cloud-cancel').addEventListener('click', ()=>modal.remove());
@@ -3750,10 +3726,22 @@
     if(savedGenres) genres = JSON.parse(savedGenres);
 
     const savedBooks = await Storage.get('mapboard-books');
-    if(savedBooks) books = JSON.parse(savedBooks);
+    if(savedBooks){
+      try{
+        const parsed = JSON.parse(savedBooks);
+        // Filter out old mock sample books
+        books = parsed.filter(b => b.id !== 'bk_1' && b.id !== 'bk_2');
+      }catch(e){ books = []; }
+    } else { books = []; }
 
     const savedArticles = await Storage.get('mapboard-articles');
-    if(savedArticles) articles = JSON.parse(savedArticles);
+    if(savedArticles){
+      try{
+        const parsed = JSON.parse(savedArticles);
+        // Filter out old mock sample articles
+        articles = parsed.filter(a => a.id !== 'art_1' && a.id !== 'art_2');
+      }catch(e){ articles = []; }
+    } else { articles = []; }
 
     const savedCloud = await Storage.get('mapboard-cloud-config');
     if(savedCloud){
