@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- Firebase SDK (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <style>
   :root{
     --bg:#F5F4EF; --dot:#DBD9CC; --ink:#242420; --muted:#8B8878;
@@ -504,9 +508,9 @@
         <div class="nav-save-dot"></div>
         <span id="save-status-text">Saved</span>
       </div>
-      <button class="nav-btn-action" id="btn-open-supabase">
+      <button class="nav-btn-action" id="btn-open-cloud">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-        Supabase Cloud
+        <span id="cloud-provider-label">Cloud Sync</span>
       </button>
     </div>
   </div>
@@ -954,7 +958,23 @@
   let activeReaderDoc = null;
   let pendingUploadedFileData = null;
   let pendingExtractedChapters = null;
-  let supabaseConfig = { url:'', key:'', tableName:'mapboard_data', autoSync:true };
+  let cloudConfig = {
+    provider: 'firebase', // 'firebase' or 'supabase'
+    firebase: {
+      apiKey: '',
+      authDomain: '',
+      projectId: '',
+      storageBucket: '',
+      messagingSenderId: '',
+      appId: '',
+      collection: 'studios',
+      docId: 'workspace_main'
+    },
+    supabase: { url:'', key:'', tableName:'mapboard_data' },
+    autoSync: true
+  };
+  let firebaseApp = null;
+  let firestoreDb = null;
 
   // IndexedDB
   const dbPromise = new Promise((resolve) => {
@@ -1116,7 +1136,7 @@
         await Storage.set('mapboard-books', JSON.stringify(books));
         await Storage.set('mapboard-articles', JSON.stringify(articles));
         flashSaved('Saved');
-        if(supabaseConfig.url && supabaseConfig.key && supabaseConfig.autoSync) triggerSupabaseSync(false);
+        if(cloudConfig.autoSync) triggerCloudSync(false);
       }catch(e){}
     };
     clearTimeout(saveTimer);
@@ -2649,98 +2669,216 @@
     });
   }
 
-  // Supabase Cloud Sync
-  function openSupabaseModal(){
-    const modal = document.createElement('div'); modal.className = 'modal-backdrop';
-    modal.innerHTML = '<div class="modal-dialog">' +
-      '<h2 class="modal-title">Supabase Cloud Sync</h2>' +
-      '<div class="modal-desc">Backup and synchronize your entire Studio Platform: Books (with bookmarks & highlights), Articles, Genres, and Whiteboards.</div>' +
-      '<div class="modal-field"><label>Supabase Project URL</label><input id="sb-url" placeholder="https://xyz.supabase.co" value="' + (supabaseConfig.url || '') + '"></div>' +
-      '<div class="modal-field"><label>Anon Public API Key</label><input id="sb-key" type="password" placeholder="eyJhbGci..." value="' + (supabaseConfig.key || '') + '"></div>' +
-      '<div class="modal-field"><label>Table Name</label><input id="sb-table" value="' + (supabaseConfig.tableName || 'mapboard_data') + '"></div>' +
-      '<div class="modal-actions">' +
-      '<button class="btn-secondary" id="sb-cancel">Close</button>' +
-      '<button class="btn-secondary" id="sb-restore">Restore from Cloud</button>' +
-      '<button class="btn-primary" id="sb-save">Save & Backup Now</button></div></div>';
-    document.body.appendChild(modal);
-    modal.querySelector('#sb-cancel').addEventListener('click', ()=>modal.remove());
-    modal.querySelector('#sb-save').addEventListener('click', async ()=>{
-      supabaseConfig.url = modal.querySelector('#sb-url').value.trim();
-      supabaseConfig.key = modal.querySelector('#sb-key').value.trim();
-      supabaseConfig.tableName = modal.querySelector('#sb-table').value.trim() || 'mapboard_data';
-      await Storage.set('mapboard-supabase-config', JSON.stringify(supabaseConfig));
-      modal.remove();
-      triggerSupabaseSync(true);
-    });
-    modal.querySelector('#sb-restore').addEventListener('click', async ()=>{
-      modal.remove();
-      restoreFromSupabase();
-    });
-  }
-  document.getElementById('btn-open-supabase').addEventListener('click', openSupabaseModal);
-
-  async function triggerSupabaseSync(immediate){
-    if(!supabaseConfig.url || !supabaseConfig.key) return;
+  // ---------------- CLOUD BACKEND (FIREBASE FIRESTORE & SUPABASE) ----------------
+  function initFirebase(){
+    if(!window.firebase || !cloudConfig.firebase || !cloudConfig.firebase.projectId || !cloudConfig.firebase.apiKey) return false;
     try{
-      saveStatusText.textContent = 'Syncing...';
-      const fullSnapshot = {
-        version: '5.5',
-        timestamp: new Date().toISOString(),
-        projects, topicsIndex, genres, books, articles,
-        boards: {}
-      };
-      for(const t of topicsIndex){
-        fullSnapshot.boards[t.id] = t.id===currentTopicId ? state : await loadTopicBoard(t.id);
+      if(!firebase.apps.length){
+        firebaseApp = firebase.initializeApp(cloudConfig.firebase);
+      } else {
+        firebaseApp = firebase.app();
       }
-
-      const cleanUrl = supabaseConfig.url.replace(/\/+$/, '');
-      const endpoint = cleanUrl + '/rest/v1/' + (supabaseConfig.tableName || 'mapboard_data');
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'apikey': supabaseConfig.key,
-          'Authorization': 'Bearer ' + supabaseConfig.key,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify({ id: 'latest_backup', data: fullSnapshot, updated_at: new Date().toISOString() })
-      });
-      if(resp.ok){ saveStatusText.textContent = '☁️ Synced'; }
+      firestoreDb = firebase.firestore();
+      return true;
     }catch(e){
-      saveStatusText.textContent = 'Local Saved';
+      console.warn('Firebase init error:', e);
+      return false;
     }
   }
 
-  async function restoreFromSupabase(){
-    if(!supabaseConfig.url || !supabaseConfig.key) return;
+  function openCloudModal(){
+    const modal = document.createElement('div'); modal.className = 'modal-backdrop';
+    const isFirebase = cloudConfig.provider === 'firebase';
+    
+    modal.innerHTML = '<div class="modal-dialog" style="width:560px;">' +
+      '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+      '<h2 class="modal-title">☁️ Cloud Backend & Sync</h2>' +
+      '<div style="display:flex; gap:4px; background:var(--bg); padding:3px; border-radius:8px; border:1px solid var(--panel-border);">' +
+      '<button id="tab-fb" class="btn-secondary" style="padding:4px 10px; font-size:11px;' + (isFirebase?'background:var(--ink); color:var(--bg); font-weight:600;':'') + '">🔥 Firebase</button>' +
+      '<button id="tab-sb" class="btn-secondary" style="padding:4px 10px; font-size:11px;' + (!isFirebase?'background:var(--ink); color:var(--bg); font-weight:600;':'') + '">⚡ Supabase</button>' +
+      '</div></div>' +
+      '<div class="modal-desc">Backup and sync your books, bookmarks, highlights, articles, genres, and whiteboard canvases across devices in real time.</div>' +
+
+      '<!-- FIREBASE CONFIG -->' +
+      '<div id="fb-fields" style="' + (isFirebase ? 'display:flex; flex-direction:column; gap:10px;' : 'display:none;') + '">' +
+      '<div class="modal-field"><label>Paste Firebase Config Object (JSON / JS)</label><textarea id="fb-json-paste" rows="3" placeholder="Paste { apiKey: \"...\", projectId: \"...\", ... }"></textarea></div>' +
+      '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">' +
+      '<div class="modal-field"><label>Project ID</label><input id="fb-project-id" placeholder="my-studio-app" value="' + (cloudConfig.firebase.projectId || '') + '"></div>' +
+      '<div class="modal-field"><label>API Key</label><input id="fb-api-key" placeholder="AIzaSy..." value="' + (cloudConfig.firebase.apiKey || '') + '"></div>' +
+      '<div class="modal-field"><label>Auth Domain</label><input id="fb-auth-domain" placeholder="my-studio-app.firebaseapp.com" value="' + (cloudConfig.firebase.authDomain || '') + '"></div>' +
+      '<div class="modal-field"><label>Firestore Doc ID</label><input id="fb-doc-id" placeholder="workspace_main" value="' + (cloudConfig.firebase.docId || 'workspace_main') + '"></div>' +
+      '</div></div>' +
+
+      '<!-- SUPABASE CONFIG -->' +
+      '<div id="sb-fields" style="' + (!isFirebase ? 'display:flex; flex-direction:column; gap:10px;' : 'display:none;') + '">' +
+      '<div class="modal-field"><label>Supabase Project URL</label><input id="sb-url" placeholder="https://xyz.supabase.co" value="' + (cloudConfig.supabase.url || '') + '"></div>' +
+      '<div class="modal-field"><label>Anon Public API Key</label><input id="sb-key" type="password" placeholder="eyJhbGci..." value="' + (cloudConfig.supabase.key || '') + '"></div>' +
+      '<div class="modal-field"><label>Table Name</label><input id="sb-table" value="' + (cloudConfig.supabase.tableName || 'mapboard_data') + '"></div>' +
+      '</div>' +
+
+      '<div class="modal-actions" style="margin-top:12px;">' +
+      '<button class="btn-secondary" id="cloud-cancel">Close</button>' +
+      '<button class="btn-secondary" id="cloud-restore">📥 Restore from Cloud</button>' +
+      '<button class="btn-primary" id="cloud-save">☁️ Save & Sync Now</button></div></div>';
+
+    document.body.appendChild(modal);
+
+    const tabFb = modal.querySelector('#tab-fb');
+    const tabSb = modal.querySelector('#tab-sb');
+    const fbFields = modal.querySelector('#fb-fields');
+    const sbFields = modal.querySelector('#sb-fields');
+
+    tabFb.addEventListener('click', ()=>{
+      cloudConfig.provider = 'firebase';
+      tabFb.style.background = 'var(--ink)'; tabFb.style.color = 'var(--bg)'; tabFb.style.fontWeight = '600';
+      tabSb.style.background = 'transparent'; tabSb.style.color = 'var(--muted)'; tabSb.style.fontWeight = 'normal';
+      fbFields.style.display = 'flex'; sbFields.style.display = 'none';
+    });
+    tabSb.addEventListener('click', ()=>{
+      cloudConfig.provider = 'supabase';
+      tabSb.style.background = 'var(--ink)'; tabSb.style.color = 'var(--bg)'; tabSb.style.fontWeight = '600';
+      tabFb.style.background = 'transparent'; tabFb.style.color = 'var(--muted)'; tabFb.style.fontWeight = 'normal';
+      sbFields.style.display = 'flex'; fbFields.style.display = 'none';
+    });
+
+    const jsonPaste = modal.querySelector('#fb-json-paste');
+    jsonPaste.addEventListener('input', ()=>{
+      try{
+        let raw = jsonPaste.value.trim();
+        if(raw.startsWith('const') || raw.startsWith('var') || raw.startsWith('let')) raw = raw.substring(raw.indexOf('{'));
+        if(raw.endsWith(';')) raw = raw.slice(0, -1);
+        const obj = Function('"use strict";return (' + raw + ')')();
+        if(obj && obj.projectId){
+          modal.querySelector('#fb-project-id').value = obj.projectId || '';
+          modal.querySelector('#fb-api-key').value = obj.apiKey || '';
+          modal.querySelector('#fb-auth-domain').value = obj.authDomain || '';
+        }
+      }catch(e){}
+    });
+
+    modal.querySelector('#cloud-cancel').addEventListener('click', ()=>modal.remove());
+
+    modal.querySelector('#cloud-save').addEventListener('click', async ()=>{
+      if(cloudConfig.provider === 'firebase'){
+        cloudConfig.firebase.projectId = modal.querySelector('#fb-project-id').value.trim();
+        cloudConfig.firebase.apiKey = modal.querySelector('#fb-api-key').value.trim();
+        cloudConfig.firebase.authDomain = modal.querySelector('#fb-auth-domain').value.trim();
+        cloudConfig.firebase.docId = modal.querySelector('#fb-doc-id').value.trim() || 'workspace_main';
+        initFirebase();
+      } else {
+        cloudConfig.supabase.url = modal.querySelector('#sb-url').value.trim();
+        cloudConfig.supabase.key = modal.querySelector('#sb-key').value.trim();
+        cloudConfig.supabase.tableName = modal.querySelector('#sb-table').value.trim() || 'mapboard_data';
+      }
+      await Storage.set('mapboard-cloud-config', JSON.stringify(cloudConfig));
+      modal.remove();
+      triggerCloudSync(true);
+    });
+
+    modal.querySelector('#cloud-restore').addEventListener('click', async ()=>{
+      modal.remove();
+      restoreFromCloud();
+    });
+  }
+
+  document.getElementById('btn-open-cloud').addEventListener('click', openCloudModal);
+
+  async function triggerCloudSync(immediate){
+    saveStatusText.textContent = 'Syncing...';
+    const fullSnapshot = {
+      version: '5.6',
+      timestamp: new Date().toISOString(),
+      projects, topicsIndex, genres, books, articles,
+      boards: {}
+    };
+    for(const t of topicsIndex){
+      fullSnapshot.boards[t.id] = t.id===currentTopicId ? state : await loadTopicBoard(t.id);
+    }
+
+    if(cloudConfig.provider === 'firebase'){
+      if(!firestoreDb && !initFirebase()){ saveStatusText.textContent = 'Local Saved'; return; }
+      try{
+        const colName = cloudConfig.firebase.collection || 'studios';
+        const docName = cloudConfig.firebase.docId || 'workspace_main';
+        await firestoreDb.collection(colName).doc(docName).set({
+          data: JSON.stringify(fullSnapshot),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        saveStatusText.textContent = '🔥 Synced';
+      }catch(err){
+        console.warn('Firebase sync error:', err);
+        saveStatusText.textContent = 'Local Saved';
+      }
+    } else if(cloudConfig.supabase.url && cloudConfig.supabase.key){
+      try{
+        const cleanUrl = cloudConfig.supabase.url.replace(/\/+$/, '');
+        const endpoint = cleanUrl + '/rest/v1/' + (cloudConfig.supabase.tableName || 'mapboard_data');
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'apikey': cloudConfig.supabase.key,
+            'Authorization': 'Bearer ' + cloudConfig.supabase.key,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({ id: 'latest_backup', data: fullSnapshot, updated_at: new Date().toISOString() })
+        });
+        if(resp.ok) saveStatusText.textContent = '⚡ Synced';
+      }catch(e){
+        saveStatusText.textContent = 'Local Saved';
+      }
+    }
+  }
+
+  async function restoreFromCloud(){
+    saveStatusText.textContent = 'Restoring...';
     try{
-      saveStatusText.textContent = 'Restoring...';
-      const cleanUrl = supabaseConfig.url.replace(/\/+$/, '');
-      const endpoint = cleanUrl + '/rest/v1/' + (supabaseConfig.tableName || 'mapboard_data') + '?id=eq.latest_backup&select=*';
-      const resp = await fetch(endpoint, {
-        headers: { 'apikey': supabaseConfig.key, 'Authorization': 'Bearer ' + supabaseConfig.key }
-      });
-      const data = await resp.json();
-      if(data && data.length && data[0].data){
-        const b = data[0].data;
-        if(b.projects) projects = b.projects;
-        if(b.topicsIndex) topicsIndex = b.topicsIndex;
-        if(b.genres) genres = b.genres;
-        if(b.books) books = b.books;
-        if(b.articles) articles = b.articles;
-        if(b.boards){
-          for(const bId in b.boards){
-            await Storage.set('mapboard-board-'+bId, JSON.stringify(b.boards[bId]));
+      let snapshotData = null;
+      if(cloudConfig.provider === 'firebase'){
+        if(!firestoreDb && !initFirebase()){ alert('Please enter your Firebase Project ID and API Key first.'); return; }
+        const colName = cloudConfig.firebase.collection || 'studios';
+        const docName = cloudConfig.firebase.docId || 'workspace_main';
+        const docSnap = await firestoreDb.collection(colName).doc(docName).get();
+        if(docSnap.exists && docSnap.data()){
+          const raw = docSnap.data();
+          snapshotData = typeof raw.data === 'string' ? JSON.parse(raw.data) : raw.data;
+        }
+      } else if(cloudConfig.supabase.url && cloudConfig.supabase.key){
+        const cleanUrl = cloudConfig.supabase.url.replace(/\/+$/, '');
+        const endpoint = cleanUrl + '/rest/v1/' + (cloudConfig.supabase.tableName || 'mapboard_data') + '?id=eq.latest_backup&select=*';
+        const resp = await fetch(endpoint, {
+          headers: { 'apikey': cloudConfig.supabase.key, 'Authorization': 'Bearer ' + cloudConfig.supabase.key }
+        });
+        const data = await resp.json();
+        if(data && data.length && data[0].data) snapshotData = data[0].data;
+      }
+
+      if(snapshotData){
+        if(snapshotData.projects) projects = snapshotData.projects;
+        if(snapshotData.topicsIndex) topicsIndex = snapshotData.topicsIndex;
+        if(snapshotData.genres) genres = snapshotData.genres;
+        if(snapshotData.books) books = snapshotData.books;
+        if(snapshotData.articles) articles = snapshotData.articles;
+        if(snapshotData.boards){
+          for(const bId in snapshotData.boards){
+            await Storage.set('mapboard-board-'+bId, JSON.stringify(snapshotData.boards[bId]));
           }
         }
         await scheduleSave();
-        alert('Master platform restored from Supabase!');
+        alert('Studio platform restored from Cloud successfully!');
         renderHome();
         renderBooks();
         renderArticles();
         renderSidebar();
+        saveStatusText.textContent = '☁️ Restored';
+      } else {
+        alert('No backup snapshot found in cloud.');
+        saveStatusText.textContent = 'Local Saved';
       }
-    }catch(e){ alert('Restore error: ' + e.message); }
+    }catch(e){
+      alert('Cloud restore error: ' + e.message);
+      saveStatusText.textContent = 'Local Saved';
+    }
   }
 
   // Keyboard Navigation
@@ -2804,8 +2942,9 @@
     const savedArticles = await Storage.get('mapboard-articles');
     if(savedArticles) articles = JSON.parse(savedArticles);
 
-    const savedSb = await Storage.get('mapboard-supabase-config');
-    if(savedSb) supabaseConfig = JSON.parse(savedSb);
+    const savedCloud = await Storage.get('mapboard-cloud-config');
+    if(savedCloud) cloudConfig = JSON.parse(savedCloud);
+    if(cloudConfig.provider === 'firebase') initFirebase();
 
     projectSelectEl.innerHTML = '';
     projects.forEach(p => {
