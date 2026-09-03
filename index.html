@@ -797,6 +797,9 @@
         <button class="dock-btn" id="tool-card" title="Card (C)">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
         </button>
+        <button class="dock-btn" id="tool-connector" title="Connector Arrow (A / Drag Ports)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 19L19 5M19 5H9M19 5V15"/><circle cx="5" cy="19" r="2" fill="currentColor"/></svg>
+        </button>
         
         <!-- Pure-Symbol Shapes Picker -->
         <div style="position:relative;">
@@ -841,6 +844,21 @@
         <div style="font-family:'IBM Plex Mono'; font-size:11px; color:var(--muted); min-width:34px; text-align:center;" id="zoom-label">100%</div>
         <button class="dock-btn" id="btn-zoom-in" style="width:28px;">＋</button>
       </div>
+
+<!-- NOTEBOOKLM-STYLE MINDMAP VIEW -->
+    <div id="mindmap-container">
+      <div class="mindmap-topbar">
+        <div class="mindmap-title-row">
+          <button class="nav-btn-action" id="btn-mindmap-back" title="Back to Whiteboard">← Canvas</button>
+          <h2 class="mindmap-title" id="mindmap-topic-title">Topic Mindmap</h2>
+          <span class="badge" style="font-size:9.5px;">NotebookLM Mode</span>
+        </div>
+        <div class="mindmap-actions">
+          <button class="btn-secondary" id="btn-mm-autogen" title="Auto-generate structure from library/notes">⚡ Auto-Branch</button>
+          <button class="btn-secondary" id="btn-mm-to-canvas" title="Send all branches as cards to Freeform Canvas">💡 Export to Canvas</button>
+          <button class="btn-primary" id="btn-mm-add-root">+ Add Branch</button>
+        </div>
+      </div>
     </div>
 
     <!-- 5. DASHBOARD SECTION -->
@@ -859,20 +877,7 @@
 
   </div>
 
-    <!-- NOTEBOOKLM-STYLE MINDMAP VIEW -->
-    <div id="mindmap-container">
-      <div class="mindmap-topbar">
-        <div class="mindmap-title-row">
-          <button class="nav-btn-action" id="btn-mindmap-back" title="Back to Whiteboard">← Canvas</button>
-          <h2 class="mindmap-title" id="mindmap-topic-title">Topic Mindmap</h2>
-          <span class="badge" style="font-size:9.5px;">NotebookLM Mode</span>
-        </div>
-        <div class="mindmap-actions">
-          <button class="btn-secondary" id="btn-mm-autogen" title="Auto-generate structure from library/notes">⚡ Auto-Branch</button>
-          <button class="btn-secondary" id="btn-mm-to-canvas" title="Send all branches as cards to Freeform Canvas">💡 Export to Canvas</button>
-          <button class="btn-primary" id="btn-mm-add-root">+ Add Branch</button>
-        </div>
-      </div>
+    
 
       <div class="mindmap-viewport" id="mm-viewport">
         <div class="mindmap-world" id="mm-world">
