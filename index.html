@@ -12,35 +12,91 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <style>
-  :root{
-    --bg:#F5F4EF; --dot:#DBD9CC; --ink:#242420; --muted:#8B8878;
-    --card-bg:#FFFFFF; --card-border:#DEDCCF; --card-border-selected:#242420;
-    --shadow:0 1px 3px rgba(40,38,30,0.06), 0 4px 14px rgba(40,38,30,0.08);
-    --shadow-lift:0 8px 24px rgba(40,38,30,0.16);
-    --teal:#3F7268; --amber:#C6862F; --indigo:#4A5B8C; --rose:#B5555A; --slate:#6B6F76; --green:#2E7D32;
-    --panel-bg:#FFFFFF; --panel-border:#E4E2D6; --panel-hover:#F0EEE3;
-    --reader-bg:#FAF8F5; --reader-ink:#2C2A29; --reader-sidebar:#F4F1EB; --reader-border:#E6E2D8;
-    --hl-yellow: rgba(254, 240, 138, 0.7);
-    --hl-green: rgba(187, 247, 208, 0.7);
-    --hl-blue: rgba(186, 230, 253, 0.7);
-    --hl-pink: rgba(251, 207, 232, 0.7);
-    --hl-purple: rgba(221, 214, 254, 0.7);
+  
+  :root {
+    --background: #FFFFFF;
+    --foreground: #09090B;
+    --card: #FFFFFF;
+    --card-foreground: #09090B;
+    --popover: #FFFFFF;
+    --popover-foreground: #09090B;
+    --primary: #18181B;
+    --primary-foreground: #FAFAFA;
+    --secondary: #F4F4F5;
+    --secondary-foreground: #18181B;
+    --muted: #71717A;
+    --muted-bg: #F4F4F5;
+    --accent: #F4F4F5;
+    --accent-foreground: #18181B;
+    --destructive: #EF4444;
+    --destructive-foreground: #FAFAFA;
+    --border: #E4E4E7;
+    --input: #E4E4E7;
+    --ring: #18181B;
+    --radius: 8px;
+    
+    --bg: #FAFAFA;
+    --dot: #E4E4E7;
+    --ink: #09090B;
+    --panel-bg: #FFFFFF;
+    --panel-border: #E4E4E7;
+    --panel-hover: #F4F4F5;
+    --card-bg: #FFFFFF;
+    --card-border: #E4E4E7;
+    --card-border-selected: #09090B;
+    --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lift: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --teal: #0D9488;
+    --amber: #D97706;
+    --indigo: #4F46E5;
+    --rose: #E11D48;
+    --slate: #64748B;
+    --reader-bg: #FAFAFA;
+    --reader-ink: #09090B;
+    --reader-sidebar: #F4F4F5;
+    --reader-border: #E4E4E7;
   }
 
-  [data-theme="dark"]{
-    --bg:#18181B; --dot:#2E2E33; --ink:#F4F4F5; --muted:#A1A1AA;
-    --card-bg:#222227; --card-border:#33333A; --card-border-selected:#38BDF8;
-    --shadow:0 1px 4px rgba(0,0,0,0.3), 0 6px 18px rgba(0,0,0,0.4);
-    --shadow-lift:0 12px 30px rgba(0,0,0,0.6);
-    --teal:#2DD4BF; --amber:#FBBF24; --indigo:#818CF8; --rose:#F43F5E; --slate:#94A3B8; --green:#4ADE80;
-    --panel-bg:#222227; --panel-border:#33333A; --panel-hover:#2C2C34;
-    --reader-bg:#1C1C20; --reader-ink:#E4E4E7; --reader-sidebar:#232328; --reader-border:#33333A;
-    --hl-yellow: rgba(234, 179, 8, 0.45);
-    --hl-green: rgba(34, 197, 94, 0.4);
-    --hl-blue: rgba(56, 189, 248, 0.4);
-    --hl-pink: rgba(244, 63, 94, 0.4);
-    --hl-purple: rgba(168, 85, 247, 0.4);
+  [data-theme="dark"] {
+    --background: #09090B;
+    --foreground: #FAFAFA;
+    --card: #09090B;
+    --card-foreground: #FAFAFA;
+    --popover: #09090B;
+    --popover-foreground: #FAFAFA;
+    --primary: #FAFAFA;
+    --primary-foreground: #18181B;
+    --secondary: #27272A;
+    --secondary-foreground: #FAFAFA;
+    --muted: #A1A1AA;
+    --muted-bg: #27272A;
+    --accent: #27272A;
+    --accent-foreground: #FAFAFA;
+    --destructive: #7F1D1D;
+    --destructive-foreground: #FAFAFA;
+    --border: #27272A;
+    --input: #27272A;
+    --ring: #D4D4D8;
+    
+    --bg: #09090B;
+    --dot: #27272A;
+    --ink: #FAFAFA;
+    --panel-bg: #121215;
+    --panel-border: #27272A;
+    --panel-hover: #1E1E24;
+    --card-bg: #121215;
+    --card-border: #27272A;
+    --card-border-selected: #38BDF8;
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+    --shadow-lift: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    --reader-bg: #09090B;
+    --reader-ink: #FAFAFA;
+    --reader-sidebar: #121215;
+    --reader-border: #27272A;
   }
+
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg);font-family:'Inter',sans-serif;color:var(--ink);transition:background-color .2s, color .2s;}
@@ -847,16 +903,25 @@
 
 <!-- NOTEBOOKLM-STYLE MINDMAP VIEW -->
     <div id="mindmap-container">
-      <div class="mindmap-topbar">
-        <div class="mindmap-title-row">
-          <button class="nav-btn-action" id="btn-mindmap-back" title="Back to Whiteboard">← Canvas</button>
-          <h2 class="mindmap-title" id="mindmap-topic-title">Topic Mindmap</h2>
-          <span class="badge" style="font-size:9.5px;">NotebookLM Mode</span>
+      <div class="mindmap-topbar" style="height:52px; background:var(--card); border-bottom:1px solid var(--border); padding:0 18px;">
+        <div class="mindmap-title-row" style="display:flex; align-items:center; gap:12px;">
+          <button class="btn-outline" id="btn-mindmap-back" style="height:32px; font-size:12px; padding:0 10px;" title="Back to Whiteboard">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Canvas
+          </button>
+          <h2 class="mindmap-title" id="mindmap-topic-title" style="font-size:15px; font-weight:600; font-family:'Inter',sans-serif; color:var(--foreground); margin:0;">Topic Mindmap</h2>
+          <span class="badge" style="font-size:10px;">NotebookLM Mode</span>
         </div>
-        <div class="mindmap-actions">
-          <button class="btn-secondary" id="btn-mm-autogen" title="Auto-generate structure from library/notes">⚡ Auto-Branch</button>
-          <button class="btn-secondary" id="btn-mm-to-canvas" title="Send all branches as cards to Freeform Canvas">💡 Export to Canvas</button>
-          <button class="btn-primary" id="btn-mm-add-root">+ Add Branch</button>
+        <div class="mindmap-actions" style="display:flex; align-items:center; gap:8px;">
+          <button class="btn-outline" id="btn-mm-autogen" style="height:32px; font-size:12px;" title="Auto-generate structure from library/notes">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Auto-Branch
+          </button>
+          <button class="btn-outline" id="btn-mm-to-canvas" style="height:32px; font-size:12px;" title="Send all branches as cards to Freeform Canvas">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            Export to Canvas
+          </button>
+          <button class="btn-primary" id="btn-mm-add-root" style="height:32px; font-size:12px;">+ Add Branch</button>
         </div>
       </div>
     </div>
@@ -2673,13 +2738,33 @@
     edgeDraw = null;
   }
 
-  // Pan & Zoom
+  // Pan & Zoom (Separated Pointer / Select vs Hand / Pan)
   let panState = null;
+  let isSpacePressed = false;
+  
+  window.addEventListener('keydown', e => {
+    if(e.code === 'Space' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){
+      isSpacePressed = true;
+      viewport.style.cursor = 'grab';
+    }
+  });
+  window.addEventListener('keyup', e => {
+    if(e.code === 'Space'){
+      isSpacePressed = false;
+      viewport.style.cursor = activeTool === 'pan' ? 'grab' : 'default';
+    }
+  });
+
   viewport.addEventListener('pointerdown', e => {
     if(e.target !== viewport) return;
     deselectAll();
-    panState = { startX:e.clientX, startY:e.clientY, ox:state.transform.x, oy:state.transform.y };
-    viewport.classList.add('panning'); viewport.setPointerCapture(e.pointerId);
+    
+    // Only allow canvas panning if Hand tool is active, space is held, or middle mouse button is used
+    if(activeTool === 'pan' || isSpacePressed || e.button === 1){
+      panState = { startX:e.clientX, startY:e.clientY, ox:state.transform.x, oy:state.transform.y };
+      viewport.classList.add('panning');
+      viewport.setPointerCapture(e.pointerId);
+    }
   });
   viewport.addEventListener('pointermove', e => {
     if(!panState) return;
@@ -3218,6 +3303,10 @@
         state.mindmapTree = getDefaultMindmap(curTopic ? curTopic.name : 'Research Theme');
       }
       activeMindmapTree = state.mindmapTree;
+      
+      // Auto-center Mindmap nicely in viewport
+      const vH = mmViewport.offsetHeight || window.innerHeight;
+      mmTransform = { x: 80, y: Math.max(120, vH / 2 - 40), scale: 1 };
       layoutAndRenderMindmap();
     } else {
       mindmapContainer.style.display = 'none';
@@ -3436,6 +3525,7 @@
     if(e.target.closest('.mm-node')) return;
     selectedMindmapNodeId = null;
     document.querySelectorAll('.mm-node').forEach(n => n.classList.remove('selected'));
+    
     mmPanState = { startX: e.clientX, startY: e.clientY, ox: mmTransform.x, oy: mmTransform.y };
     mmViewport.classList.add('panning');
   });
