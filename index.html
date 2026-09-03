@@ -456,17 +456,18 @@
 
   /* Mindmap Node Pills */
   .mm-node{
-    position:absolute; border-radius:12px; padding:10px 16px; cursor:pointer; user-select:none;
-    display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;
+    position:absolute; border-radius:12px; padding:10px 18px; cursor:pointer; user-select:none;
+    display:inline-flex; align-items:center; justify-content:space-between; gap:10px; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;
     box-shadow:0 4px 14px rgba(0,0,0,0.12); transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    border:1.5px solid rgba(255,255,255,0.15); min-width:80px; max-width:280px; text-align:left;
+    border:1.5px solid rgba(255,255,255,0.15); width:max-content; min-width:130px; max-width:320px; text-align:left;
+    white-space:nowrap;
   }
   .mm-node:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 8px 24px rgba(0,0,0,0.2);}
   .mm-node.selected{outline:2.5px solid var(--card-border-selected); box-shadow:0 0 0 4px rgba(63,114,104,0.25);}
   
   /* Level-based color themes (NotebookLM styling) */
-  .mm-level-0{background:#3B4252; color:#ECEFF4; font-size:15px; font-weight:600; padding:14px 20px; border-radius:14px; border-color:#4C566A;}
-  .mm-level-1{background:#2E3440; color:#E5E9F0; font-size:13.5px; border-color:#434C5E;}
+  .mm-level-0{background:#3B4252; color:#ECEFF4; font-size:14.5px; font-weight:600; padding:12px 20px; border-radius:14px; border-color:#4C566A;}
+  .mm-level-1{background:#2E3440; color:#E5E9F0; font-size:13px; border-color:#434C5E;}
   .mm-level-2{background:#2A433B; color:#D8DEE9; border-color:#3E6357;}
   .mm-level-3{background:#1E3A34; color:#A3BE8C; border-color:#2E5A50; font-size:12.5px;}
   .mm-level-4{background:#1B2B34; color:#88C0D0; border-color:#2A4452; font-size:12px;}
@@ -477,12 +478,16 @@
   [data-theme="light"] .mm-level-3{background:#1E4B3E; color:#E8F5E9;}
   [data-theme="light"] .mm-level-4{background:#2C3E50; color:#FFF;}
 
-  .mm-text{outline:none; word-break:break-word; flex:1;}
-  .mm-text.editing{cursor:text;}
+  .mm-text{
+    outline:none; display:inline-block; max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.4; flex:1;
+  }
+  .mm-text.editing{
+    white-space:normal; overflow:visible; max-width:280px; cursor:text;
+  }
 
   .mm-toggle-badge{
-    width:18px; height:18px; border-radius:50%; background:rgba(255,255,255,0.2);
-    display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;
+    width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,0.2);
+    display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700;
     cursor:pointer; flex-shrink:0; transition:background .12s, transform .12s;
   }
   .mm-toggle-badge:hover{background:rgba(255,255,255,0.4); transform:scale(1.15);}
@@ -507,6 +512,32 @@
     color:var(--ink); cursor:pointer; border-radius:4px; font-family:'Inter';
   }
   .mm-action-btn:hover{background:var(--panel-hover);}
+
+  
+  /* Revamped Sidebar Styles */
+  .sidebar-section-header{
+    display:flex; align-items:center; justify-content:space-between; padding:4px 10px 6px 10px; margin-top:6px;
+  }
+  .btn-sidebar-add{
+    border:1px solid var(--panel-border); background:var(--panel-bg); font-family:'Inter'; font-size:11px;
+    font-weight:600; color:var(--teal); border-radius:6px; padding:3px 8px; cursor:pointer; display:flex; align-items:center; gap:4px;
+  }
+  .btn-sidebar-add:hover{background:var(--panel-hover); border-color:var(--teal);}
+
+  /* Visual Connector Ports on Cards & Shapes */
+  .node-port{
+    position:absolute; width:12px; height:12px; border-radius:50%; background:var(--teal);
+    border:2px solid #FFF; box-shadow:0 0 4px rgba(0,0,0,0.3); opacity:0; transition:opacity .15s, transform .15s;
+    cursor:crosshair; z-index:15; pointer-events:auto;
+  }
+  .node:hover .node-port, .node.selected .node-port{opacity:1;}
+  .node-port:hover{transform:scale(1.35); background:var(--card-border-selected);}
+  .node-port.port-top{top:-6px; left:50%; transform:translateX(-50%);}
+  .node-port.port-bottom{bottom:-6px; left:50%; transform:translateX(-50%);}
+  .node-port.port-left{left:-6px; top:50%; transform:translateY(-50%);}
+  .node-port.port-right{right:-6px; top:50%; transform:translateY(-50%);}
+  .node-port.port-top:hover, .node-port.port-bottom:hover{transform:translateX(-50%) scale(1.35);}
+  .node-port.port-left:hover, .node-port.port-right:hover{transform:translateY(-50%) scale(1.35);}
 
   /* Edges */
   .edge-path{fill:none; stroke:#A9A796; stroke-width:2.2;}
@@ -704,31 +735,34 @@
     <!-- 4. RESEARCH (WHITEBOARD CANVAS) SECTION -->
     <div id="canvas-container">
       <div id="sidebar">
+        <!-- Workspace Project Section -->
         <div class="project-selector-wrap">
-          <div class="project-selector-header">
+          <div class="sidebar-section-header" style="padding:0; margin-bottom:6px;">
             <span class="project-selector-label">Workspace Project</span>
-            <button class="project-btn-icon" id="btn-add-project" title="Create New Project">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            </button>
+            <button class="btn-sidebar-add" id="btn-add-project" title="Create New Project">+ Project</button>
           </div>
           <select id="project-select" class="project-select"></select>
         </div>
 
+        <!-- Mode Toggle: Canvas vs Mindmap -->
+        <div class="research-mode-toggle">
+          <button class="research-mode-btn active" id="btn-view-canvas">🔲 Canvas</button>
+          <button class="research-mode-btn" id="btn-view-mindmap">🧠 Mindmap</button>
+        </div>
+
+        <!-- Search Bar -->
         <div id="sidebar-search-wrap">
           <span class="search-icon-fixed"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
           <input id="sidebar-search" placeholder="Search whiteboard notes…" autocomplete="off">
         </div>
 
-        <div class="research-mode-toggle">
-          <button class="research-mode-btn active" id="btn-view-canvas">🔲 Canvas</button>
-          <button class="research-mode-btn" id="btn-view-mindmap">🧠 Mindmap</button>
+        <!-- Topics & Whiteboards with '+ New Topic' button at top -->
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title" style="margin:0; padding:0;">Topics & Whiteboards</span>
+          <button class="btn-sidebar-add" id="new-topic-btn" title="Create New Whiteboard Topic">+ New Topic</button>
         </div>
-        <div class="sidebar-section-title">Topics & Whiteboards</div>
-        <div id="project-list"></div>
-        <button id="new-topic-btn">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          + New whiteboard
-        </button>
+
+        <div id="project-list" style="flex:1; overflow-y:auto;"></div>
       </div>
 
       <div id="viewport">
@@ -2252,6 +2286,20 @@
     if(!el){
       el = document.createElement('div');
       el.dataset.id = node.id;
+      
+      // Inject visual connection port handles
+      el.innerHTML = '<div class="node-port port-top" data-port="top" title="Drag to connect"></div>' +
+        '<div class="node-port port-bottom" data-port="bottom" title="Drag to connect"></div>' +
+        '<div class="node-port port-left" data-port="left" title="Drag to connect"></div>' +
+        '<div class="node-port port-right" data-port="right" title="Drag to connect"></div>';
+
+      el.querySelectorAll('.node-port').forEach(port => {
+        port.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          startPortConnection(node.id, e);
+        });
+      });
+
       nodesLayer.appendChild(el);
     }
 
@@ -2578,6 +2626,26 @@
     window.addEventListener('pointermove', onEdgeDrawMove, { passive: true });
     window.addEventListener('pointerup', onEdgeDrawEnd);
   }
+
+  // Visual Connection Dragging & Connector Tool
+  let connectorSourceNodeId = null;
+
+  function startPortConnection(fromId, e){
+    edgeDraw = { fromId: fromId, tempLine: document.createElementNS('http://www.w3.org/2000/svg', 'path') };
+    edgeDraw.tempLine.setAttribute('class', 'edge-path');
+    edgeDraw.tempLine.setAttribute('style', 'stroke-dasharray:4 4; stroke:var(--teal);');
+    edgesSvg.appendChild(edgeDraw.tempLine);
+    document.body.classList.add('drawing-edge-active');
+    window.addEventListener('pointermove', onEdgeDrawMove);
+    window.addEventListener('pointerup', onEdgeDrawEnd);
+  }
+
+  document.getElementById('tool-connector').addEventListener('click', ()=>{
+    activeTool = activeTool === 'connector' ? 'select' : 'connector';
+    updateDockUI();
+    connectorSourceNodeId = null;
+  });
+
   function onEdgeDrawMove(e){
     if(!edgeDraw) return;
     const fromNode = state.nodes.find(n=>n.id===edgeDraw.fromId);
@@ -2646,6 +2714,7 @@
     document.querySelectorAll('.dock-btn').forEach(b=>b.classList.remove('active'));
     if(activeTool==='select') document.getElementById('tool-select').classList.add('active');
     if(activeTool==='pan') document.getElementById('tool-pan').classList.add('active');
+    if(activeTool==='connector') document.getElementById('tool-connector').classList.add('active');
   }
 
   document.getElementById('tool-sticky').addEventListener('click', ()=>{
@@ -2731,29 +2800,60 @@
   }
 
   async function switchTopic(id){
-    if(id === currentTopicId) return;
+    if(id === currentTopicId && state) return;
     await saveBoard(true);
+    const curT = topicsIndex.find(t=>t.id===id);
+    const topicName = curT ? curT.name : 'Research Workspace';
+    
     const loaded = await loadTopicBoard(id);
-    state = loaded || { nodes:[], edges:[], transform:{x:0,y:0,scale:1} };
+    state = loaded || {
+      nodes:[],
+      edges:[],
+      transform:{x:0,y:0,scale:1},
+      mindmapTree: { id:'root', text: topicName, collapsed:false, children:[] }
+    };
+    
+    if(!state.mindmapTree){
+      state.mindmapTree = { id:'root', text: topicName, collapsed:false, children:[] };
+    }
+    activeMindmapTree = state.mindmapTree;
     currentTopicId = id;
     await Storage.set('mapboard-current', id);
     selectedNodeId=null; selectedEdgeId=null;
-    applyTransform();
-    nodesLayer.innerHTML = '';
-    renderNodesFull();
-    renderEdges();
+    
+    if(currentMindmapView === 'mindmap'){
+      document.getElementById('mindmap-topic-title').textContent = topicName + ' Mindmap';
+      layoutAndRenderMindmap();
+    } else {
+      applyTransform();
+      nodesLayer.innerHTML = '';
+      renderNodesFull();
+      renderEdges();
+    }
     renderSidebar();
   }
 
   async function createTopicPrompt(){
-    const name = prompt('Enter whiteboard topic name:', 'New Topic');
+    const name = prompt('Enter whiteboard topic name:', 'New Whiteboard');
     if(name && name.trim()){
       const id = genId();
       const color = PALETTE[topicsIndex.length % PALETTE.length];
       topicsIndex.push({ id, name:name.trim(), color, projectId: activeProjectId, updatedAt:Date.now() });
       await Storage.set('mapboard-index', JSON.stringify(topicsIndex));
-      const starter = { id:genId(), type:'card', x:100, y:30, w:210, text:name.trim(), color:'#3F7268', tags:[], links:[] };
-      await Storage.set('mapboard-board-'+id, JSON.stringify({nodes:[starter],edges:[],transform:{x:0,y:0,scale:1}}));
+      
+      // Completely clean fresh board & fresh mindmap for new topic
+      const cleanBoard = {
+        nodes: [],
+        edges: [],
+        transform: { x:0, y:0, scale:1 },
+        mindmapTree: {
+          id: 'root',
+          text: name.trim(),
+          collapsed: false,
+          children: []
+        }
+      };
+      await Storage.set('mapboard-board-'+id, JSON.stringify(cleanBoard));
       await switchTopic(id);
     }
   }
@@ -3135,9 +3235,8 @@
     mmNodesLayer.innerHTML = '';
     applyMmTransform();
 
-    const X_GAP = 280;
-    const Y_GAP = 48;
-    let currentY = 0;
+    const X_GAP = 320;
+    const Y_GAP = 56;
 
     function computeSubtreeHeight(node){
       if(!node.children || node.children.length === 0 || node.collapsed){
@@ -3189,6 +3288,7 @@
       const textSpan = document.createElement('span');
       textSpan.className = 'mm-text';
       textSpan.textContent = node.text;
+      textSpan.title = node.text;
       el.appendChild(textSpan);
 
       textSpan.addEventListener('dblclick', e => {
@@ -3289,7 +3389,8 @@
 
       // Draw curved bezier branches
       if(parentNode){
-        const pX = parentNode._x + (parentNode._w || 180);
+        const pW = parentNode._w || 180;
+        const pX = parentNode._x + pW;
         const pY = parentNode._y;
         const cX = node._x;
         const cY = node._y;
