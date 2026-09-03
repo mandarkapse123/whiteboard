@@ -788,7 +788,7 @@
       <div class="articles-grid" id="articles-grid"></div>
     </div>
 
-    <!-- 4. RESEARCH (WHITEBOARD CANVAS) SECTION -->
+    <!-- 4. RESEARCH (WHITEBOARD CANVAS & MINDMAP) SECTION -->
     <div id="canvas-container">
       <div id="sidebar">
         <!-- Workspace Project Section -->
@@ -821,7 +821,8 @@
         <div id="project-list" style="flex:1; overflow-y:auto;"></div>
       </div>
 
-      <div id="viewport">
+      <!-- FREEFORM CANVAS VIEW -->
+      <div id="viewport" style="flex:1; height:100%; position:relative; overflow:hidden;">
         <div id="world">
           <svg id="edges-svg">
             <defs>
@@ -863,7 +864,6 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 22 22 22"/><circle cx="12" cy="15" r="3"/></svg>
           </button>
           
-          <!-- Pure Symbol Grid Palette -->
           <div class="dock-shapes-dropdown" id="shapes-menu">
             <button class="shape-icon-btn" data-shape="rectangle" title="Rectangle / Square">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
@@ -901,27 +901,35 @@
         <button class="dock-btn" id="btn-zoom-in" style="width:28px;">＋</button>
       </div>
 
-<!-- NOTEBOOKLM-STYLE MINDMAP VIEW -->
-    <div id="mindmap-container">
-      <div class="mindmap-topbar" style="height:52px; background:var(--card); border-bottom:1px solid var(--border); padding:0 18px;">
-        <div class="mindmap-title-row" style="display:flex; align-items:center; gap:12px;">
-          <button class="btn-outline" id="btn-mindmap-back" style="height:32px; font-size:12px; padding:0 10px;" title="Back to Whiteboard">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Canvas
-          </button>
-          <h2 class="mindmap-title" id="mindmap-topic-title" style="font-size:15px; font-weight:600; font-family:'Inter',sans-serif; color:var(--foreground); margin:0;">Topic Mindmap</h2>
-          <span class="badge" style="font-size:10px;">NotebookLM Mode</span>
+      <!-- NOTEBOOKLM-STYLE MINDMAP VIEW (Strictly enclosed in canvas-container) -->
+      <div id="mindmap-container" style="flex:1; height:100%; position:relative; display:none; flex-direction:column; overflow:hidden; background:var(--background); z-index:45;">
+        <div class="mindmap-topbar" style="height:52px; background:var(--card); border-bottom:1px solid var(--border); padding:0 18px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+          <div class="mindmap-title-row" style="display:flex; align-items:center; gap:12px;">
+            <button class="btn-outline" id="btn-mindmap-back" style="height:32px; font-size:12px; padding:0 10px;" title="Back to Whiteboard">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Canvas
+            </button>
+            <h2 class="mindmap-title" id="mindmap-topic-title" style="font-size:15px; font-weight:600; font-family:'Inter',sans-serif; color:var(--foreground); margin:0;">Topic Mindmap</h2>
+            <span class="badge" style="font-size:10px;">NotebookLM Mode</span>
+          </div>
+          <div class="mindmap-actions" style="display:flex; align-items:center; gap:8px;">
+            <button class="btn-outline" id="btn-mm-autogen" style="height:32px; font-size:12px;" title="Auto-generate structure from library/notes">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Auto-Branch
+            </button>
+            <button class="btn-outline" id="btn-mm-to-canvas" style="height:32px; font-size:12px;" title="Send all branches as cards to Freeform Canvas">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              Export to Canvas
+            </button>
+            <button class="btn-primary" id="btn-mm-add-root" style="height:32px; font-size:12px;">+ Add Branch</button>
+          </div>
         </div>
-        <div class="mindmap-actions" style="display:flex; align-items:center; gap:8px;">
-          <button class="btn-outline" id="btn-mm-autogen" style="height:32px; font-size:12px;" title="Auto-generate structure from library/notes">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            Auto-Branch
-          </button>
-          <button class="btn-outline" id="btn-mm-to-canvas" style="height:32px; font-size:12px;" title="Send all branches as cards to Freeform Canvas">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-            Export to Canvas
-          </button>
-          <button class="btn-primary" id="btn-mm-add-root" style="height:32px; font-size:12px;">+ Add Branch</button>
+
+        <div class="mindmap-viewport" id="mm-viewport" style="flex:1; width:100%; height:100%; position:relative; overflow:hidden;">
+          <div class="mindmap-world" id="mm-world">
+            <svg class="mindmap-svg-layer" id="mm-svg"></svg>
+            <div class="mindmap-nodes-layer" id="mm-nodes"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -944,12 +952,7 @@
 
     
 
-      <div class="mindmap-viewport" id="mm-viewport">
-        <div class="mindmap-world" id="mm-world">
-          <svg class="mindmap-svg-layer" id="mm-svg"></svg>
-          <div class="mindmap-nodes-layer" id="mm-nodes"></div>
-        </div>
-      </div>
+      
     </div>
 
 </div>
@@ -1370,29 +1373,36 @@
     currentMode = mode;
     document.querySelectorAll('.nav-mode-btn').forEach(b=>b.classList.remove('active'));
     
+    // Hide all viewports cleanly
     [homeView, booksView, articlesView, canvasContainer, dashboardView].forEach(v => {
-      if(v) v.classList.remove('active');
-      if(v && v === canvasContainer) v.style.display = 'none';
+      if(v){
+        v.classList.remove('active');
+        v.style.display = 'none';
+      }
     });
 
     if(mode==='HOME'){
       document.getElementById('btn-mode-home').classList.add('active');
+      homeView.style.display = 'block';
       homeView.classList.add('active');
       renderHome();
     } else if(mode==='BOOKS'){
       document.getElementById('btn-mode-books').classList.add('active');
+      booksView.style.display = 'block';
       booksView.classList.add('active');
       renderBooks();
     } else if(mode==='ARTICLES'){
       document.getElementById('btn-mode-articles').classList.add('active');
+      articlesView.style.display = 'block';
       articlesView.classList.add('active');
       renderArticles();
     } else if(mode==='CANVAS'){
       document.getElementById('btn-mode-canvas').classList.add('active');
       canvasContainer.style.display = 'flex';
-      applyTransform();
+      setResearchView(currentMindmapView || 'canvas');
     } else if(mode==='DASHBOARD'){
       document.getElementById('btn-mode-dashboard').classList.add('active');
+      dashboardView.style.display = 'block';
       dashboardView.classList.add('active');
       renderDashboard();
     }
@@ -3294,7 +3304,15 @@
     document.getElementById('btn-view-canvas').classList.toggle('active', mode === 'canvas');
     document.getElementById('btn-view-mindmap').classList.toggle('active', mode === 'mindmap');
     
+    const viewportEl = document.getElementById('viewport');
+    const bottomDockEl = document.getElementById('bottom-dock');
+
     if(mode === 'mindmap'){
+      // Hide Freeform Canvas and Bottom Dock
+      if(viewportEl) viewportEl.style.display = 'none';
+      if(bottomDockEl) bottomDockEl.style.display = 'none';
+      
+      // Show Mindmap Container
       mindmapContainer.style.display = 'flex';
       const curTopic = topicsIndex.find(t=>t.id===currentTopicId);
       document.getElementById('mindmap-topic-title').textContent = (curTopic ? curTopic.name : 'Research') + ' Mindmap';
@@ -3309,7 +3327,14 @@
       mmTransform = { x: 80, y: Math.max(120, vH / 2 - 40), scale: 1 };
       layoutAndRenderMindmap();
     } else {
+      // Hide Mindmap Container
       mindmapContainer.style.display = 'none';
+      
+      // Show Freeform Canvas and Bottom Dock
+      if(viewportEl) viewportEl.style.display = 'block';
+      if(bottomDockEl) bottomDockEl.style.display = 'flex';
+      
+      applyTransform();
       renderAll();
     }
   }
