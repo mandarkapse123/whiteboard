@@ -421,6 +421,93 @@
   .swatch-row-inline{display:flex; gap:5px;}
   .swatch{width:15px; height:15px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
 
+  
+  /* NotebookLM-Style Mindmap Styles */
+  .research-mode-toggle{
+    display:flex; background:var(--bg); padding:2px; border-radius:8px; border:1px solid var(--panel-border); margin:0 8px 8px 8px;
+  }
+  .research-mode-btn{
+    flex:1; border:none; background:transparent; padding:5px; font-family:'Inter'; font-size:11px; font-weight:500;
+    color:var(--muted); border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;
+  }
+  .research-mode-btn.active{background:var(--panel-bg); color:var(--ink); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+
+  #mindmap-container{
+    position:absolute; inset:0; background:var(--bg); display:none; flex-direction:column; overflow:hidden; z-index:40;
+  }
+  [data-theme="dark"] #mindmap-container{background:#131316;}
+
+  .mindmap-topbar{
+    height:46px; background:var(--panel-bg); border-bottom:1px solid var(--panel-border);
+    display:flex; align-items:center; justify-content:space-between; padding:0 16px; flex-shrink:0; z-index:50;
+  }
+  .mindmap-title-row{display:flex; align-items:center; gap:10px;}
+  .mindmap-title{font-family:'Fraunces',serif; font-size:16px; font-weight:600; color:var(--ink); margin:0;}
+  .mindmap-actions{display:flex; align-items:center; gap:6px;}
+
+  .mindmap-viewport{
+    flex:1; width:100%; height:100%; position:relative; overflow:hidden; cursor:grab; touch-action:none;
+    background-image: radial-gradient(var(--dot) 1.2px, transparent 1.2px); background-size: 24px 24px;
+  }
+  .mindmap-viewport.panning{cursor:grabbing;}
+  .mindmap-world{position:absolute; left:0; top:0; transform-origin:0 0;}
+  .mindmap-svg-layer{position:absolute; left:0; top:0; overflow:visible; pointer-events:none;}
+  .mindmap-nodes-layer{position:absolute; left:0; top:0;}
+
+  /* Mindmap Node Pills */
+  .mm-node{
+    position:absolute; border-radius:12px; padding:10px 16px; cursor:pointer; user-select:none;
+    display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;
+    box-shadow:0 4px 14px rgba(0,0,0,0.12); transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    border:1.5px solid rgba(255,255,255,0.15); min-width:80px; max-width:280px; text-align:left;
+  }
+  .mm-node:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+  .mm-node.selected{outline:2.5px solid var(--card-border-selected); box-shadow:0 0 0 4px rgba(63,114,104,0.25);}
+  
+  /* Level-based color themes (NotebookLM styling) */
+  .mm-level-0{background:#3B4252; color:#ECEFF4; font-size:15px; font-weight:600; padding:14px 20px; border-radius:14px; border-color:#4C566A;}
+  .mm-level-1{background:#2E3440; color:#E5E9F0; font-size:13.5px; border-color:#434C5E;}
+  .mm-level-2{background:#2A433B; color:#D8DEE9; border-color:#3E6357;}
+  .mm-level-3{background:#1E3A34; color:#A3BE8C; border-color:#2E5A50; font-size:12.5px;}
+  .mm-level-4{background:#1B2B34; color:#88C0D0; border-color:#2A4452; font-size:12px;}
+
+  [data-theme="light"] .mm-level-0{background:#2E3440; color:#FFF;}
+  [data-theme="light"] .mm-level-1{background:#3B4252; color:#FFF;}
+  [data-theme="light"] .mm-level-2{background:#2D5A4E; color:#FFF;}
+  [data-theme="light"] .mm-level-3{background:#1E4B3E; color:#E8F5E9;}
+  [data-theme="light"] .mm-level-4{background:#2C3E50; color:#FFF;}
+
+  .mm-text{outline:none; word-break:break-word; flex:1;}
+  .mm-text.editing{cursor:text;}
+
+  .mm-toggle-badge{
+    width:18px; height:18px; border-radius:50%; background:rgba(255,255,255,0.2);
+    display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;
+    cursor:pointer; flex-shrink:0; transition:background .12s, transform .12s;
+  }
+  .mm-toggle-badge:hover{background:rgba(255,255,255,0.4); transform:scale(1.15);}
+
+  .mm-branch-curve{
+    fill:none; stroke-width:2.2; stroke-linecap:round; transition:stroke .15s;
+  }
+  .mm-branch-curve.level-0{stroke:#6B7280;}
+  .mm-branch-curve.level-1{stroke:#4ADE80;}
+  .mm-branch-curve.level-2{stroke:#2DD4BF;}
+  .mm-branch-curve.level-3{stroke:#38BDF8;}
+
+  /* Floating Mindmap Node Toolbar */
+  .mm-node-actions{
+    position:absolute; top:-34px; left:50%; transform:translateX(-50%);
+    background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:18px;
+    padding:3px 6px; display:none; align-items:center; gap:4px; box-shadow:var(--shadow-lift); z-index:60;
+  }
+  .mm-node.selected .mm-node-actions{display:flex;}
+  .mm-action-btn{
+    border:none; background:transparent; padding:3px 6px; font-size:11px; font-weight:600;
+    color:var(--ink); cursor:pointer; border-radius:4px; font-family:'Inter';
+  }
+  .mm-action-btn:hover{background:var(--panel-hover);}
+
   /* Edges */
   .edge-path{fill:none; stroke:#A9A796; stroke-width:2.2;}
   .edge-path.selected{stroke:var(--ink); stroke-width:2.8;}
@@ -632,6 +719,10 @@
           <input id="sidebar-search" placeholder="Search whiteboard notes…" autocomplete="off">
         </div>
 
+        <div class="research-mode-toggle">
+          <button class="research-mode-btn active" id="btn-view-canvas">🔲 Canvas</button>
+          <button class="research-mode-btn" id="btn-view-mindmap">🧠 Mindmap</button>
+        </div>
         <div class="sidebar-section-title">Topics & Whiteboards</div>
         <div id="project-list"></div>
         <button id="new-topic-btn">
@@ -733,6 +824,30 @@
     </div>
 
   </div>
+
+    <!-- NOTEBOOKLM-STYLE MINDMAP VIEW -->
+    <div id="mindmap-container">
+      <div class="mindmap-topbar">
+        <div class="mindmap-title-row">
+          <button class="nav-btn-action" id="btn-mindmap-back" title="Back to Whiteboard">← Canvas</button>
+          <h2 class="mindmap-title" id="mindmap-topic-title">Topic Mindmap</h2>
+          <span class="badge" style="font-size:9.5px;">NotebookLM Mode</span>
+        </div>
+        <div class="mindmap-actions">
+          <button class="btn-secondary" id="btn-mm-autogen" title="Auto-generate structure from library/notes">⚡ Auto-Branch</button>
+          <button class="btn-secondary" id="btn-mm-to-canvas" title="Send all branches as cards to Freeform Canvas">💡 Export to Canvas</button>
+          <button class="btn-primary" id="btn-mm-add-root">+ Add Branch</button>
+        </div>
+      </div>
+
+      <div class="mindmap-viewport" id="mm-viewport">
+        <div class="mindmap-world" id="mm-world">
+          <svg class="mindmap-svg-layer" id="mm-svg"></svg>
+          <div class="mindmap-nodes-layer" id="mm-nodes"></div>
+        </div>
+      </div>
+    </div>
+
 </div>
 
 <!-- FULLSCREEN DISTRACTION-FREE BOOK & ARTICLE READER -->
@@ -2903,6 +3018,460 @@
       updateSaveStatusUI();
     }
   }
+
+
+  // ---------------- NOTEBOOKLM-STYLE MINDMAP ENGINE ----------------
+  let currentMindmapView = 'canvas'; // 'canvas' or 'mindmap'
+  let activeMindmapTree = null;
+  let selectedMindmapNodeId = null;
+  let mmTransform = { x: 120, y: 300, scale: 1 };
+
+  const mmViewport = document.getElementById('mm-viewport');
+  const mmWorld = document.getElementById('mm-world');
+  const mmSvg = document.getElementById('mm-svg');
+  const mmNodesLayer = document.getElementById('mm-nodes');
+  const mindmapContainer = document.getElementById('mindmap-container');
+
+  function getDefaultMindmap(topicName){
+    return {
+      id: 'root',
+      text: topicName || 'Strategic Research & Performance',
+      collapsed: false,
+      children: [
+        {
+          id: 'c1',
+          text: "Benchmarks: What's a Good Rate?",
+          collapsed: false,
+          children: [
+            {
+              id: 'c1_1',
+              text: 'Performance Levels',
+              collapsed: false,
+              children: [
+                { id: 'c1_1_1', text: 'Poor: Below 1%', collapsed: false, children: [] },
+                { id: 'c1_1_2', text: 'Average: 2% - 5%', collapsed: false, children: [] },
+                { id: 'c1_1_3', text: 'Excellent: 8% - 15%', collapsed: false, children: [] },
+                { id: 'c1_1_4', text: 'Exceptional: 15%+', collapsed: false, children: [] }
+              ]
+            },
+            { id: 'c1_2', text: 'Response Factors', collapsed: true, children: [{ id:'rf_1', text:'Audience Targeting', children:[] }, { id:'rf_2', text:'Offer Relevance', children:[] }] },
+            { id: 'c1_3', text: 'Company Size Impact', collapsed: true, children: [{ id:'cs_1', text:'SMB (High reply rate)', children:[] }, { id:'cs_2', text:'Enterprise (Long sales cycle)', children:[] }] },
+            { id: 'c1_4', text: 'Industry Variation', collapsed: true, children: [] }
+          ]
+        },
+        {
+          id: 'c2',
+          text: 'Consulting Industry Guide',
+          collapsed: true,
+          children: [
+            { id: 'c2_1', text: 'Positioning & Value Proposition', children:[] },
+            { id: 'c2_2', text: 'Founder-Led Outreach Strategy', children:[] }
+          ]
+        },
+        {
+          id: 'c3',
+          text: 'Pilot Program Strategy',
+          collapsed: true,
+          children: [
+            { id: 'c3_1', text: 'Low-friction discovery offer', children:[] },
+            { id: 'c3_2', text: 'Case study extraction', children:[] }
+          ]
+        },
+        {
+          id: 'c4',
+          text: 'The $3M ARR Outreach System',
+          collapsed: true,
+          children: [
+            { id: 'c4_1', text: 'Tech stack & automated enrichment', children:[] },
+            { id: 'c4_2', text: 'Multi-touch sequences', children:[] }
+          ]
+        },
+        {
+          id: 'c5',
+          text: 'Execution Optimization',
+          collapsed: true,
+          children: [
+            { id: 'c5_1', text: 'Domain warm-up & deliverability', children:[] },
+            { id: 'c5_2', text: 'A/B subject line testing', children:[] }
+          ]
+        }
+      ]
+    };
+  }
+
+  function setResearchView(mode){
+    currentMindmapView = mode;
+    document.getElementById('btn-view-canvas').classList.toggle('active', mode === 'canvas');
+    document.getElementById('btn-view-mindmap').classList.toggle('active', mode === 'mindmap');
+    
+    if(mode === 'mindmap'){
+      mindmapContainer.style.display = 'flex';
+      const curTopic = topicsIndex.find(t=>t.id===currentTopicId);
+      document.getElementById('mindmap-topic-title').textContent = (curTopic ? curTopic.name : 'Research') + ' Mindmap';
+      
+      if(!state.mindmapTree){
+        state.mindmapTree = getDefaultMindmap(curTopic ? curTopic.name : 'Research Theme');
+      }
+      activeMindmapTree = state.mindmapTree;
+      layoutAndRenderMindmap();
+    } else {
+      mindmapContainer.style.display = 'none';
+      renderAll();
+    }
+  }
+
+  document.getElementById('btn-view-canvas').addEventListener('click', ()=>setResearchView('canvas'));
+  document.getElementById('btn-view-mindmap').addEventListener('click', ()=>setResearchView('mindmap'));
+  document.getElementById('btn-mindmap-back').addEventListener('click', ()=>setResearchView('canvas'));
+
+  function applyMmTransform(){
+    mmWorld.style.transform = 'translate(' + mmTransform.x + 'px, ' + mmTransform.y + 'px) scale(' + mmTransform.scale + ')';
+  }
+
+  // Tree layout algorithm
+  function layoutAndRenderMindmap(){
+    if(!activeMindmapTree) return;
+    mmSvg.innerHTML = '';
+    mmNodesLayer.innerHTML = '';
+    applyMmTransform();
+
+    const X_GAP = 280;
+    const Y_GAP = 48;
+    let currentY = 0;
+
+    function computeSubtreeHeight(node){
+      if(!node.children || node.children.length === 0 || node.collapsed){
+        node._height = Y_GAP;
+        return Y_GAP;
+      }
+      let total = 0;
+      node.children.forEach(c => {
+        total += computeSubtreeHeight(c);
+      });
+      node._height = Math.max(Y_GAP, total);
+      return node._height;
+    }
+
+    computeSubtreeHeight(activeMindmapTree);
+
+    function assignPositions(node, depth, startY){
+      node._x = depth * X_GAP;
+      node._depth = depth;
+      
+      if(!node.children || node.children.length === 0 || node.collapsed){
+        node._y = startY + Y_GAP / 2;
+        return;
+      }
+
+      let childY = startY;
+      node.children.forEach(child => {
+        assignPositions(child, depth + 1, childY);
+        childY += child._height;
+      });
+
+      const firstChild = node.children[0];
+      const lastChild = node.children[node.children.length - 1];
+      node._y = (firstChild._y + lastChild._y) / 2;
+    }
+
+    assignPositions(activeMindmapTree, 0, 0);
+
+    // Draw curves and nodes
+    function renderNodeRecursive(node, parentNode){
+      const el = document.createElement('div');
+      const depthClass = 'mm-level-' + Math.min(4, node._depth);
+      el.className = 'mm-node ' + depthClass + (node.id === selectedMindmapNodeId ? ' selected' : '');
+      el.style.left = node._x + 'px';
+      el.style.top = (node._y - 20) + 'px';
+      el.dataset.id = node.id;
+
+      // Text Element
+      const textSpan = document.createElement('span');
+      textSpan.className = 'mm-text';
+      textSpan.textContent = node.text;
+      el.appendChild(textSpan);
+
+      textSpan.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        textSpan.contentEditable = 'true';
+        textSpan.classList.add('editing');
+        textSpan.focus();
+        document.execCommand('selectAll', false, null);
+        const commit = () => {
+          node.text = textSpan.innerText.trim() || 'New Node';
+          textSpan.contentEditable = 'false';
+          textSpan.classList.remove('editing');
+          layoutAndRenderMindmap();
+          scheduleSave();
+        };
+        textSpan.addEventListener('blur', commit, { once: true });
+        textSpan.addEventListener('keydown', ev => {
+          if(ev.key === 'Enter'){ ev.preventDefault(); textSpan.blur(); }
+          if(ev.key === 'Escape'){ ev.preventDefault(); textSpan.blur(); }
+          ev.stopPropagation();
+        });
+      });
+
+      // Expand / Collapse Badge
+      if(node.children && node.children.length > 0){
+        const badge = document.createElement('div');
+        badge.className = 'mm-toggle-badge';
+        badge.textContent = node.collapsed ? '>' : '<';
+        badge.title = node.collapsed ? ('Expand ' + node.children.length + ' branches') : 'Collapse branches';
+        badge.addEventListener('click', e => {
+          e.stopPropagation();
+          node.collapsed = !node.collapsed;
+          layoutAndRenderMindmap();
+          scheduleSave();
+        });
+        el.appendChild(badge);
+      }
+
+      // Quick Actions Toolbar
+      const actions = document.createElement('div');
+      actions.className = 'mm-node-actions';
+      actions.innerHTML = '<button class="mm-action-btn btn-add-child" title="Add Sub-Branch (+ / Tab)">+ Child</button>' +
+        '<button class="mm-action-btn btn-add-sib" title="Add Sibling (Enter)">+ Sibling</button>' +
+        (node.id !== 'root' ? '<button class="mm-action-btn btn-del" style="color:var(--rose);" title="Delete">×</button>' : '');
+
+      actions.querySelector('.btn-add-child').addEventListener('click', e => {
+        e.stopPropagation();
+        node.children = node.children || [];
+        node.collapsed = false;
+        const newChild = { id: 'mm_' + genId(), text: 'New sub-topic', collapsed: false, children: [] };
+        node.children.push(newChild);
+        selectedMindmapNodeId = newChild.id;
+        layoutAndRenderMindmap();
+        scheduleSave();
+      });
+
+      actions.querySelector('.btn-add-sib').addEventListener('click', e => {
+        e.stopPropagation();
+        if(parentNode){
+          const newSib = { id: 'mm_' + genId(), text: 'New branch', collapsed: false, children: [] };
+          const idx = parentNode.children.indexOf(node);
+          parentNode.children.splice(idx + 1, 0, newSib);
+          selectedMindmapNodeId = newSib.id;
+          layoutAndRenderMindmap();
+          scheduleSave();
+        } else {
+          node.children = node.children || [];
+          const newC = { id: 'mm_' + genId(), text: 'New branch', collapsed: false, children: [] };
+          node.children.push(newC);
+          selectedMindmapNodeId = newC.id;
+          layoutAndRenderMindmap();
+          scheduleSave();
+        }
+      });
+
+      if(node.id !== 'root'){
+        actions.querySelector('.btn-del').addEventListener('click', e => {
+          e.stopPropagation();
+          if(parentNode){
+            parentNode.children = parentNode.children.filter(c => c.id !== node.id);
+            selectedMindmapNodeId = parentNode.id;
+            layoutAndRenderMindmap();
+            scheduleSave();
+          }
+        });
+      }
+
+      el.appendChild(actions);
+
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        selectedMindmapNodeId = node.id;
+        document.querySelectorAll('.mm-node').forEach(n => n.classList.remove('selected'));
+        el.classList.add('selected');
+      });
+
+      mmNodesLayer.appendChild(el);
+
+      // Draw curved bezier branches
+      if(parentNode){
+        const pX = parentNode._x + (parentNode._w || 180);
+        const pY = parentNode._y;
+        const cX = node._x;
+        const cY = node._y;
+        
+        const midX = (pX + cX) / 2;
+        const pathData = 'M ' + pX + ' ' + pY + ' C ' + midX + ' ' + pY + ', ' + midX + ' ' + cY + ', ' + cX + ' ' + cY;
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', pathData);
+        path.setAttribute('class', 'mm-branch-curve level-' + Math.min(3, parentNode._depth));
+        mmSvg.appendChild(path);
+      }
+
+      if(!node.collapsed && node.children){
+        node.children.forEach(child => renderNodeRecursive(child, node));
+      }
+    }
+
+    renderNodeRecursive(activeMindmapTree, null);
+
+    // Measure exact node widths for perfect SVG connection coordinates
+    requestAnimationFrame(() => {
+      mmNodesLayer.querySelectorAll('.mm-node').forEach(el => {
+        const id = el.dataset.id;
+        function setW(n){
+          if(n.id === id){ n._w = el.offsetWidth; return true; }
+          if(n.children) for(const c of n.children) if(setW(c)) return true;
+          return false;
+        }
+        setW(activeMindmapTree);
+      });
+    });
+  }
+
+  // Pan & Zoom in Mindmap
+  let mmPanState = null;
+  mmViewport.addEventListener('pointerdown', e => {
+    if(e.target.closest('.mm-node')) return;
+    selectedMindmapNodeId = null;
+    document.querySelectorAll('.mm-node').forEach(n => n.classList.remove('selected'));
+    mmPanState = { startX: e.clientX, startY: e.clientY, ox: mmTransform.x, oy: mmTransform.y };
+    mmViewport.classList.add('panning');
+  });
+
+  mmViewport.addEventListener('pointermove', e => {
+    if(!mmPanState) return;
+    mmTransform.x = mmPanState.ox + (e.clientX - mmPanState.startX);
+    mmTransform.y = mmPanState.oy + (e.clientY - mmPanState.startY);
+    applyMmTransform();
+  });
+
+  function endMmPan(){
+    if(mmPanState){ mmPanState = null; mmViewport.classList.remove('panning'); }
+  }
+  mmViewport.addEventListener('pointerup', endMmPan);
+  mmViewport.addEventListener('pointercancel', endMmPan);
+
+  mmViewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = mmViewport.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    let scale = mmTransform.scale * (1 - e.deltaY * 0.0016);
+    scale = Math.min(2.5, Math.max(0.35, scale));
+    mmTransform.scale = scale;
+    applyMmTransform();
+  }, { passive: false });
+
+  // Mindmap Controls & Auto-Generate
+  document.getElementById('btn-mm-add-root').addEventListener('click', ()=>{
+    if(!activeMindmapTree) return;
+    activeMindmapTree.children = activeMindmapTree.children || [];
+    const newBranch = { id: 'mm_' + genId(), text: 'New Strategy Branch', collapsed: false, children: [] };
+    activeMindmapTree.children.push(newBranch);
+    selectedMindmapNodeId = newBranch.id;
+    layoutAndRenderMindmap();
+    scheduleSave();
+  });
+
+  document.getElementById('btn-mm-autogen').addEventListener('click', ()=>{
+    const curTopic = topicsIndex.find(t=>t.id===currentTopicId);
+    const topicName = curTopic ? curTopic.name : 'Research Workspace';
+    
+    // Harvest books and articles into structured mindmap branches
+    const newTree = {
+      id: 'root',
+      text: topicName,
+      collapsed: false,
+      children: []
+    };
+
+    if(books.length > 0){
+      const booksBranch = {
+        id: 'mm_books',
+        text: '📖 Books & Literature (' + books.length + ')',
+        collapsed: false,
+        children: books.map(b => ({
+          id: 'mm_b_' + b.id,
+          text: b.title + ' (' + b.author + ')',
+          collapsed: false,
+          children: (b.bookmarks || []).map((bm, idx) => ({
+            id: 'mm_bm_' + idx,
+            text: 'p.' + bm.page + ': ' + bm.note,
+            children: []
+          }))
+        }))
+      };
+      newTree.children.push(booksBranch);
+    }
+
+    if(articles.length > 0){
+      const articlesBranch = {
+        id: 'mm_articles',
+        text: '📰 Articles & Papers (' + articles.length + ')',
+        collapsed: false,
+        children: articles.map(a => ({
+          id: 'mm_a_' + a.id,
+          text: a.title,
+          collapsed: false,
+          children: a.notes ? [{ id:'mm_an_'+a.id, text: a.notes.slice(0, 80) + '...', children:[] }] : []
+        }))
+      };
+      newTree.children.push(articlesBranch);
+    }
+
+    if(state.nodes && state.nodes.length > 0){
+      const canvasBranch = {
+        id: 'mm_canvas',
+        text: '🔬 Canvas Concepts (' + state.nodes.length + ')',
+        collapsed: false,
+        children: state.nodes.slice(0, 6).map(n => ({
+          id: 'mm_n_' + n.id,
+          text: n.text || (n.type === 'browser' ? 'Browser Window' : 'Whiteboard Idea'),
+          children: []
+        }))
+      };
+      newTree.children.push(canvasBranch);
+    }
+
+    state.mindmapTree = newTree;
+    activeMindmapTree = newTree;
+    layoutAndRenderMindmap();
+    scheduleSave();
+  });
+
+  // Export Mindmap to Freeform Canvas
+  document.getElementById('btn-mm-to-canvas').addEventListener('click', ()=>{
+    if(!activeMindmapTree) return;
+    if(confirm('Export this Mindmap structure as connected cards on the Freeform Whiteboard Canvas?')){
+      setResearchView('canvas');
+      
+      const startX = 100;
+      let startY = 100;
+
+      function createNodeTreeOnCanvas(node, depth, parentCanvasId){
+        const nodeW = depth === 0 ? 240 : 200;
+        const color = depth === 0 ? '#3F7268' : (depth === 1 ? '#4A5B8C' : '#6B6F76');
+        
+        const canvasNode = createNode({
+          type: depth === 0 ? 'shape' : 'card',
+          shapeType: depth === 0 ? 'rectangle' : undefined,
+          x: startX + depth * 280,
+          y: startY,
+          w: nodeW,
+          text: node.text,
+          color: color
+        });
+
+        if(parentCanvasId){
+          addEdge(parentCanvasId, canvasNode.id);
+        }
+
+        startY += 100;
+
+        if(node.children){
+          node.children.forEach(c => createNodeTreeOnCanvas(c, depth + 1, canvasNode.id));
+        }
+      }
+
+      createNodeTreeOnCanvas(activeMindmapTree, 0, null);
+    }
+  });
 
   // Keyboard Navigation
   window.addEventListener('keydown', e => {
