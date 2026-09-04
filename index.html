@@ -495,6 +495,92 @@
   .swatch{width:15px; height:15px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
 
   
+  
+  /* Ultra-Smooth Mindmap Animations & Node Document System */
+  .mm-node {
+    position: absolute; border-radius: 12px; padding: 10px 18px; cursor: pointer; user-select: none;
+    display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    border: 1.5px solid rgba(255,255,255,0.15); width: max-content; min-width: 130px; max-width: 320px; text-align: left;
+    white-space: nowrap;
+    transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.28s ease,
+                transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.15s ease,
+                border-color 0.15s ease;
+    will-change: left, top, opacity, transform;
+  }
+  .mm-node:hover { transform: translateY(-1px) scale(1.02); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+  .mm-node.selected { outline: 2.5px solid var(--card-border-selected); box-shadow: 0 0 0 4px rgba(63,114,104,0.25); }
+  .mm-node.mm-entering { opacity: 0; transform: scale(0.65); }
+  .mm-node.mm-leaving { opacity: 0; transform: scale(0.65); pointer-events: none; }
+
+  .mm-doc-badge {
+    font-size: 11px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 6px;
+    display: inline-flex; align-items: center; gap: 3px; cursor: pointer; margin-left: 4px;
+    transition: background .15s, transform .15s;
+  }
+  .mm-doc-badge:hover { background: rgba(255,255,255,0.4); transform: scale(1.1); }
+
+  /* Node Document / Explanation Modal Drawer */
+  #mm-doc-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  #mm-doc-modal.active { display: flex; }
+  .mm-doc-dialog {
+    width: 680px; max-width: 95vw; height: 75vh; max-height: 800px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lift);
+    display: flex; flex-direction: column; overflow: hidden; animation: docModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes docModalPop {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .mm-doc-header {
+    padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+    background: var(--card); flex-shrink: 0;
+  }
+  .mm-doc-title-row { display: flex; align-items: baseline; gap: 10px; }
+  .mm-doc-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--foreground); margin: 0; }
+  .mm-doc-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+  .mm-doc-toolbar {
+    padding: 8px 20px; background: var(--secondary); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  }
+  .mm-doc-tool-btn {
+    border: 1px solid var(--border); background: var(--card); border-radius: 6px; padding: 3px 8px;
+    font-size: 11.5px; font-weight: 500; font-family: 'Inter', sans-serif; color: var(--foreground); cursor: pointer;
+  }
+  .mm-doc-tool-btn:hover { background: var(--panel-hover); }
+  .mm-doc-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
+  .mm-doc-textarea {
+    width: 100%; flex: 1; min-height: 280px; border: none; background: transparent; font-family: 'Inter', sans-serif;
+    font-size: 15px; line-height: 1.7; color: var(--foreground); outline: none; resize: none;
+  }
+  .mm-doc-footer {
+    padding: 10px 20px; border-top: 1px solid var(--border); background: var(--secondary);
+    display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--muted); flex-shrink: 0;
+  }
+
+  /* Whiteboard Portal Card Styles */
+  .node.is-portal {
+    border: 2px solid var(--teal); background: var(--card-bg); border-radius: 12px; padding: 14px;
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.15); display: flex; flex-direction: column; gap: 8px;
+  }
+  .portal-badge {
+    display: inline-flex; align-items: center; gap: 4px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--teal); font-weight: 600;
+  }
+  .portal-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
+  .portal-jump-btn {
+    margin-top: auto; border: 1px solid var(--border); background: var(--secondary); border-radius: 6px;
+    padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 500; color: var(--teal);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all .12s;
+  }
+  .portal-jump-btn:hover { background: var(--teal); color: #FFF; border-color: var(--teal); }
+
   /* NotebookLM-Style Mindmap Styles */
   .research-mode-toggle{
     display:flex; background:var(--bg); padding:2px; border-radius:8px; border:1px solid var(--panel-border); margin:0 8px 8px 8px;
@@ -829,10 +915,11 @@
           <input id="sidebar-search" placeholder="Search whiteboard notes…" autocomplete="off">
         </div>
 
-        <!-- Topics & Whiteboards with '+ New Topic' and 'Clear Canvas' buttons -->
+        <!-- Topics & Whiteboards with 'Import', 'Clear', and '+ New Topic' buttons -->
         <div class="sidebar-section-header">
           <span class="sidebar-section-title" style="margin:0; padding:0;">Topics & Whiteboards</span>
-          <div style="display:flex; gap:4px;">
+          <div style="display:flex; gap:3px;">
+            <button class="btn-sidebar-add" id="btn-import-board" title="Import or connect another whiteboard">📥 Import</button>
             <button class="btn-sidebar-add" id="btn-clear-canvas" style="color:var(--destructive);" title="Clear current whiteboard">🗑️ Clear</button>
             <button class="btn-sidebar-add" id="new-topic-btn" title="Create New Whiteboard Topic">+ New</button>
           </div>
@@ -915,6 +1002,9 @@
         <button class="dock-btn" id="tool-browser" title="In-Canvas Browser Window">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </button>
+        <button class="dock-btn" id="tool-portal" title="Connect / Link Another Whiteboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><circle cx="9" cy="9" r="2"/></svg>
+        </button>
         <div class="dock-sep"></div>
         <button class="dock-btn" id="btn-zoom-out" style="width:28px;">－</button>
         <div style="font-family:'IBM Plex Mono'; font-size:11px; color:var(--muted); min-width:34px; text-align:center;" id="zoom-label">100%</div>
@@ -933,10 +1023,6 @@
             <span class="badge" style="font-size:10px;">NotebookLM Mode</span>
           </div>
           <div class="mindmap-actions" style="display:flex; align-items:center; gap:8px;">
-            <button class="btn-outline" id="btn-mm-autogen" style="height:32px; font-size:12px;" title="Auto-generate structure from library/notes">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              Auto-Branch
-            </button>
             <button class="btn-outline" id="btn-mm-to-canvas" style="height:32px; font-size:12px;" title="Send all branches as cards to Freeform Canvas">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
               Export to Canvas
@@ -2398,6 +2484,29 @@
         el.appendChild(secH);
       }
 
+      if(node.type === 'portal'){
+        classList.push('is-portal');
+        el.className = classList.join(' ');
+        const pHeader = document.createElement('div');
+        pHeader.className = 'portal-badge';
+        pHeader.innerHTML = '<span style="width:7px; height:7px; border-radius:50%; background:' + (node.targetTopicColor||'var(--teal)') + ';"></span> Linked Whiteboard';
+        el.appendChild(pHeader);
+
+        const pTitle = document.createElement('h4');
+        pTitle.className = 'portal-title';
+        pTitle.textContent = node.text || node.targetTopicName || 'Connected Topic';
+        el.appendChild(pTitle);
+
+        const jumpBtn = document.createElement('button');
+        jumpBtn.className = 'portal-jump-btn';
+        jumpBtn.innerHTML = 'Open Whiteboard ➔';
+        jumpBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if(node.targetTopicId) switchTopic(node.targetTopicId);
+        });
+        el.appendChild(jumpBtn);
+      }
+
       if(node.type === 'browser'){
         const bHeader = document.createElement('div');
         bHeader.className = 'canvas-browser-header';
@@ -2942,6 +3051,158 @@
       await switchTopic(id);
     }
   }
+
+  // Whiteboard Portal Creation Tool
+  document.getElementById('tool-portal').addEventListener('click', ()=>{
+    const otherTopics = topicsIndex.filter(t => t.id !== currentTopicId);
+    if(otherTopics.length === 0){
+      alert('Create another topic whiteboard first to establish a cross-board connection.');
+      return;
+    }
+    openPortalPickerModal();
+  });
+
+  function openPortalPickerModal(){
+    const otherTopics = topicsIndex.filter(t => t.id !== currentTopicId);
+    const modal = document.createElement('div'); modal.className = 'modal-backdrop';
+    let topicOptionsHtml = '';
+    otherTopics.forEach(t => {
+      topicOptionsHtml += '<div class="book-card topic-picker-card" data-id="' + t.id + '" style="padding:12px; margin-bottom:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">' +
+        '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<span style="width:10px; height:10px; border-radius:50%; background:' + t.color + ';"></span>' +
+        '<span style="font-weight:600; font-size:13px;">' + t.name + '</span></div>' +
+        '<button class="btn-primary" style="height:28px; font-size:11px;">Connect</button></div>';
+    });
+
+    modal.innerHTML = '<div class="modal-dialog" style="width:480px;">' +
+      '<h2 class="modal-title">🔗 Connect to Whiteboard</h2>' +
+      '<div class="modal-desc">Select a whiteboard to drop an interactive connection portal card on this canvas.</div>' +
+      '<div style="max-height:300px; overflow-y:auto; margin:12px 0;">' + topicOptionsHtml + '</div>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="modal-cancel-portal">Cancel</button></div></div>';
+    document.body.appendChild(modal);
+
+    modal.querySelectorAll('.topic-picker-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const tId = card.dataset.id;
+        const targetT = topicsIndex.find(t => t.id === tId);
+        if(targetT){
+          const rect = viewport.getBoundingClientRect();
+          const w = screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          createNode({
+            type: 'portal',
+            targetTopicId: targetT.id,
+            targetTopicName: targetT.name,
+            targetTopicColor: targetT.color,
+            text: targetT.name,
+            x: w.x - 110, y: w.y - 45,
+            w: 220, h: 95
+          });
+        }
+        modal.remove();
+      });
+    });
+    modal.querySelector('#modal-cancel-portal').addEventListener('click', () => modal.remove());
+  }
+
+  // Import Whiteboard Modal Logic
+  document.getElementById('btn-import-board').addEventListener('click', openImportWhiteboardModal);
+
+  function openImportWhiteboardModal(){
+    const otherTopics = topicsIndex.filter(t => t.id !== currentTopicId);
+    if(otherTopics.length === 0){
+      alert('No other whiteboards found to import. Create another whiteboard first.');
+      return;
+    }
+    const modal = document.createElement('div'); modal.className = 'modal-backdrop';
+    let optionsHtml = '';
+    otherTopics.forEach(t => {
+      optionsHtml += '<div class="book-card" style="padding:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">' +
+        '<div><div style="display:flex; align-items:center; gap:8px;">' +
+        '<span style="width:10px; height:10px; border-radius:50%; background:' + t.color + ';"></span>' +
+        '<span style="font-weight:600; font-size:13.5px;">' + t.name + '</span></div>' +
+        '<div style="font-size:11.5px; color:var(--muted); margin-top:2px;">Import all cards, shapes, and connections</div></div>' +
+        '<div style="display:flex; gap:6px;">' +
+        '<button class="btn-outline btn-link-board" data-id="' + t.id + '" style="height:30px; font-size:11.5px;">🔗 Add Link</button>' +
+        '<button class="btn-primary btn-merge-board" data-id="' + t.id + '" style="height:30px; font-size:11.5px;">📥 Merge Cards</button></div></div>';
+    });
+
+    modal.innerHTML = '<div class="modal-dialog" style="width:540px;">' +
+      '<h2 class="modal-title">📥 Connect & Import Whiteboard</h2>' +
+      '<div class="modal-desc">Merge all items from another whiteboard directly into this canvas, or drop a connected link portal.</div>' +
+      '<div style="max-height:360px; overflow-y:auto; margin:14px 0;">' + optionsHtml + '</div>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="modal-cancel-import">Close</button></div></div>';
+    document.body.appendChild(modal);
+
+    modal.querySelectorAll('.btn-link-board').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetT = topicsIndex.find(t => t.id === btn.dataset.id);
+        if(targetT){
+          const rect = viewport.getBoundingClientRect();
+          const w = screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          createNode({
+            type: 'portal',
+            targetTopicId: targetT.id,
+            targetTopicName: targetT.name,
+            targetTopicColor: targetT.color,
+            text: targetT.name,
+            x: w.x - 110, y: w.y - 45,
+            w: 220, h: 95
+          });
+        }
+        modal.remove();
+      });
+    });
+
+    modal.querySelectorAll('.btn-merge-board').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const sourceBoardData = await loadTopicBoard(btn.dataset.id);
+        if(!sourceBoardData || !sourceBoardData.nodes || sourceBoardData.nodes.length === 0){
+          alert('Selected whiteboard is empty.');
+          return;
+        }
+        if(confirm('Import ' + sourceBoardData.nodes.length + ' elements into current whiteboard?')){
+          const idMap = {};
+          const offsetX = 320;
+          const offsetY = 50;
+
+          sourceBoardData.nodes.forEach(n => {
+            const oldId = n.id;
+            const newId = genId();
+            idMap[oldId] = newId;
+            const clonedNode = JSON.parse(JSON.stringify(n));
+            clonedNode.id = newId;
+            clonedNode.x = (clonedNode.x || 0) + offsetX;
+            clonedNode.y = (clonedNode.y || 0) + offsetY;
+            state.nodes.push(clonedNode);
+            createOrUpdateNodeDOM(clonedNode);
+          });
+
+          if(sourceBoardData.edges){
+            sourceBoardData.edges.forEach(e => {
+              if(idMap[e.from] && idMap[e.to]){
+                state.edges.push({
+                  id: genId(),
+                  from: idMap[e.from],
+                  to: idMap[e.to],
+                  label: e.label || ''
+                });
+              }
+            });
+          }
+
+          renderEdges();
+          scheduleSave();
+          triggerCloudSync(true);
+          modal.remove();
+          alert('Successfully merged ' + sourceBoardData.nodes.length + ' items!');
+        }
+      });
+    });
+
+    modal.querySelector('#modal-cancel-import').addEventListener('click', () => modal.remove());
+  }
+
+
   // Project Selector Management
   function renderProjectSelect(){
     projectSelectEl.innerHTML = '';
@@ -3284,11 +3545,13 @@
   }
 
 
-  // ---------------- NOTEBOOKLM-STYLE MINDMAP ENGINE ----------------
+  
+  // ---------------- NOTEBOOKLM-STYLE MINDMAP ENGINE (ULTRA-SMOOTH) ----------------
   let currentMindmapView = 'canvas'; // 'canvas' or 'mindmap'
   let activeMindmapTree = null;
   let selectedMindmapNodeId = null;
-  let mmTransform = { x: 120, y: 300, scale: 1 };
+  let mmTransform = { x: 80, y: 300, scale: 1 };
+  let mmAnimationRaf = null;
 
   const mmViewport = document.getElementById('mm-viewport');
   const mmWorld = document.getElementById('mm-world');
@@ -3299,127 +3562,24 @@
   function getDefaultMindmap(topicName){
     return {
       id: 'root',
-      text: topicName || 'Strategic Research & Performance',
+      text: topicName || 'Strategic Research Theme',
+      doc: '',
       collapsed: false,
-      children: [
-        {
-          id: 'c1',
-          text: "Benchmarks: What's a Good Rate?",
-          collapsed: false,
-          children: [
-            {
-              id: 'c1_1',
-              text: 'Performance Levels',
-              collapsed: false,
-              children: [
-                { id: 'c1_1_1', text: 'Poor: Below 1%', collapsed: false, children: [] },
-                { id: 'c1_1_2', text: 'Average: 2% - 5%', collapsed: false, children: [] },
-                { id: 'c1_1_3', text: 'Excellent: 8% - 15%', collapsed: false, children: [] },
-                { id: 'c1_1_4', text: 'Exceptional: 15%+', collapsed: false, children: [] }
-              ]
-            },
-            { id: 'c1_2', text: 'Response Factors', collapsed: true, children: [{ id:'rf_1', text:'Audience Targeting', children:[] }, { id:'rf_2', text:'Offer Relevance', children:[] }] },
-            { id: 'c1_3', text: 'Company Size Impact', collapsed: true, children: [{ id:'cs_1', text:'SMB (High reply rate)', children:[] }, { id:'cs_2', text:'Enterprise (Long sales cycle)', children:[] }] },
-            { id: 'c1_4', text: 'Industry Variation', collapsed: true, children: [] }
-          ]
-        },
-        {
-          id: 'c2',
-          text: 'Consulting Industry Guide',
-          collapsed: true,
-          children: [
-            { id: 'c2_1', text: 'Positioning & Value Proposition', children:[] },
-            { id: 'c2_2', text: 'Founder-Led Outreach Strategy', children:[] }
-          ]
-        },
-        {
-          id: 'c3',
-          text: 'Pilot Program Strategy',
-          collapsed: true,
-          children: [
-            { id: 'c3_1', text: 'Low-friction discovery offer', children:[] },
-            { id: 'c3_2', text: 'Case study extraction', children:[] }
-          ]
-        },
-        {
-          id: 'c4',
-          text: 'The $3M ARR Outreach System',
-          collapsed: true,
-          children: [
-            { id: 'c4_1', text: 'Tech stack & automated enrichment', children:[] },
-            { id: 'c4_2', text: 'Multi-touch sequences', children:[] }
-          ]
-        },
-        {
-          id: 'c5',
-          text: 'Execution Optimization',
-          collapsed: true,
-          children: [
-            { id: 'c5_1', text: 'Domain warm-up & deliverability', children:[] },
-            { id: 'c5_2', text: 'A/B subject line testing', children:[] }
-          ]
-        }
-      ]
+      children: []
     };
   }
-
-  function setResearchView(mode){
-    currentMindmapView = mode;
-    document.getElementById('btn-view-canvas').classList.toggle('active', mode === 'canvas');
-    document.getElementById('btn-view-mindmap').classList.toggle('active', mode === 'mindmap');
-    
-    const viewportEl = document.getElementById('viewport');
-    const bottomDockEl = document.getElementById('bottom-dock');
-
-    if(mode === 'mindmap'){
-      // Hide Freeform Canvas and Bottom Dock
-      if(viewportEl) viewportEl.style.display = 'none';
-      if(bottomDockEl) bottomDockEl.style.display = 'none';
-      
-      // Show Mindmap Container
-      mindmapContainer.style.display = 'flex';
-      const curTopic = topicsIndex.find(t=>t.id===currentTopicId);
-      document.getElementById('mindmap-topic-title').textContent = (curTopic ? curTopic.name : 'Research') + ' Mindmap';
-      
-      if(!state.mindmapTree){
-        state.mindmapTree = getDefaultMindmap(curTopic ? curTopic.name : 'Research Theme');
-      }
-      activeMindmapTree = state.mindmapTree;
-      
-      // Auto-center Mindmap nicely in viewport
-      const vH = mmViewport.offsetHeight || window.innerHeight;
-      mmTransform = { x: 80, y: Math.max(120, vH / 2 - 40), scale: 1 };
-      layoutAndRenderMindmap();
-    } else {
-      // Hide Mindmap Container
-      mindmapContainer.style.display = 'none';
-      
-      // Show Freeform Canvas and Bottom Dock
-      if(viewportEl) viewportEl.style.display = 'block';
-      if(bottomDockEl) bottomDockEl.style.display = 'flex';
-      
-      applyTransform();
-      renderAll();
-    }
-  }
-
-  document.getElementById('btn-view-canvas').addEventListener('click', ()=>setResearchView('canvas'));
-  document.getElementById('btn-view-mindmap').addEventListener('click', ()=>setResearchView('mindmap'));
-  document.getElementById('btn-mindmap-back').addEventListener('click', ()=>setResearchView('canvas'));
 
   function applyMmTransform(){
     mmWorld.style.transform = 'translate(' + mmTransform.x + 'px, ' + mmTransform.y + 'px) scale(' + mmTransform.scale + ')';
   }
 
-  // Tree layout algorithm
+  // Smooth Incremental Tree Layout Algorithm
   function layoutAndRenderMindmap(){
     if(!activeMindmapTree) return;
-    mmSvg.innerHTML = '';
-    mmNodesLayer.innerHTML = '';
     applyMmTransform();
 
     const X_GAP = 320;
-    const Y_GAP = 56;
+    const Y_GAP = 58;
 
     function computeSubtreeHeight(node){
       if(!node.children || node.children.length === 0 || node.collapsed){
@@ -3458,133 +3618,165 @@
 
     assignPositions(activeMindmapTree, 0, 0);
 
-    // Draw curves and nodes
+    const visibleNodeIds = new Set();
+    const connections = [];
+
+    // Incremental DOM update for nodes
     function renderNodeRecursive(node, parentNode){
-      const el = document.createElement('div');
-      const depthClass = 'mm-level-' + Math.min(4, node._depth);
-      el.className = 'mm-node ' + depthClass + (node.id === selectedMindmapNodeId ? ' selected' : '');
-      el.style.left = node._x + 'px';
-      el.style.top = (node._y - 20) + 'px';
-      el.dataset.id = node.id;
+      visibleNodeIds.add(node.id);
+      let el = mmNodesLayer.querySelector('[data-id="' + node.id + '"]');
+      const isNew = !el;
 
-      // Text Element
-      const textSpan = document.createElement('span');
-      textSpan.className = 'mm-text';
-      textSpan.textContent = node.text;
-      textSpan.title = node.text;
-      el.appendChild(textSpan);
+      if(isNew){
+        el = document.createElement('div');
+        el.dataset.id = node.id;
+        el.className = 'mm-node mm-level-' + Math.min(4, node._depth) + ' mm-entering';
+        // Start from parent coordinates for organic expansion
+        const startX = parentNode ? parentNode._x : node._x;
+        const startY = parentNode ? parentNode._y : node._y;
+        el.style.left = startX + 'px';
+        el.style.top = (startY - 20) + 'px';
 
-      textSpan.addEventListener('dblclick', e => {
-        e.stopPropagation();
-        textSpan.contentEditable = 'true';
-        textSpan.classList.add('editing');
-        textSpan.focus();
-        document.execCommand('selectAll', false, null);
-        const commit = () => {
-          node.text = textSpan.innerText.trim() || 'New Node';
-          textSpan.contentEditable = 'false';
-          textSpan.classList.remove('editing');
-          layoutAndRenderMindmap();
-          scheduleSave();
-        };
-        textSpan.addEventListener('blur', commit, { once: true });
-        textSpan.addEventListener('keydown', ev => {
-          if(ev.key === 'Enter'){ ev.preventDefault(); textSpan.blur(); }
-          if(ev.key === 'Escape'){ ev.preventDefault(); textSpan.blur(); }
-          ev.stopPropagation();
-        });
-      });
+        // Text Span
+        const textSpan = document.createElement('span');
+        textSpan.className = 'mm-text';
+        el.appendChild(textSpan);
 
-      // Expand / Collapse Badge
-      if(node.children && node.children.length > 0){
-        const badge = document.createElement('div');
-        badge.className = 'mm-toggle-badge';
-        badge.textContent = node.collapsed ? '>' : '<';
-        badge.title = node.collapsed ? ('Expand ' + node.children.length + ' branches') : 'Collapse branches';
-        badge.addEventListener('click', e => {
+        textSpan.addEventListener('dblclick', e => {
           e.stopPropagation();
-          node.collapsed = !node.collapsed;
+          textSpan.contentEditable = 'true';
+          textSpan.classList.add('editing');
+          textSpan.focus();
+          document.execCommand('selectAll', false, null);
+          const commit = () => {
+            node.text = textSpan.innerText.trim() || 'New Node';
+            textSpan.contentEditable = 'false';
+            textSpan.classList.remove('editing');
+            layoutAndRenderMindmap();
+            scheduleSave();
+          };
+          textSpan.addEventListener('blur', commit, { once: true });
+          textSpan.addEventListener('keydown', ev => {
+            if(ev.key === 'Enter' || ev.key === 'Escape'){ ev.preventDefault(); textSpan.blur(); }
+            ev.stopPropagation();
+          });
+        });
+
+        // Quick Actions Toolbar
+        const actions = document.createElement('div');
+        actions.className = 'mm-node-actions';
+        actions.innerHTML = '<button class="mm-action-btn btn-add-child" title="Add Child">+ Child</button>' +
+          '<button class="mm-action-btn btn-add-sib" title="Add Sibling">+ Sibling</button>' +
+          '<button class="mm-action-btn btn-node-doc" title="Open Deep-Dive Note" style="color:var(--teal);">📝 Doc</button>' +
+          (node.id !== 'root' ? '<button class="mm-action-btn btn-del" style="color:var(--rose);" title="Delete">×</button>' : '');
+
+        actions.querySelector('.btn-add-child').addEventListener('click', e => {
+          e.stopPropagation();
+          node.children = node.children || [];
+          node.collapsed = false;
+          const newChild = { id: 'mm_' + genId(), text: 'New sub-topic', doc: '', collapsed: false, children: [] };
+          node.children.push(newChild);
+          selectedMindmapNodeId = newChild.id;
           layoutAndRenderMindmap();
           scheduleSave();
         });
-        el.appendChild(badge);
-      }
 
-      // Quick Actions Toolbar
-      const actions = document.createElement('div');
-      actions.className = 'mm-node-actions';
-      actions.innerHTML = '<button class="mm-action-btn btn-add-child" title="Add Sub-Branch (+ / Tab)">+ Child</button>' +
-        '<button class="mm-action-btn btn-add-sib" title="Add Sibling (Enter)">+ Sibling</button>' +
-        (node.id !== 'root' ? '<button class="mm-action-btn btn-del" style="color:var(--rose);" title="Delete">×</button>' : '');
-
-      actions.querySelector('.btn-add-child').addEventListener('click', e => {
-        e.stopPropagation();
-        node.children = node.children || [];
-        node.collapsed = false;
-        const newChild = { id: 'mm_' + genId(), text: 'New sub-topic', collapsed: false, children: [] };
-        node.children.push(newChild);
-        selectedMindmapNodeId = newChild.id;
-        layoutAndRenderMindmap();
-        scheduleSave();
-      });
-
-      actions.querySelector('.btn-add-sib').addEventListener('click', e => {
-        e.stopPropagation();
-        if(parentNode){
-          const newSib = { id: 'mm_' + genId(), text: 'New branch', collapsed: false, children: [] };
-          const idx = parentNode.children.indexOf(node);
-          parentNode.children.splice(idx + 1, 0, newSib);
+        actions.querySelector('.btn-add-sib').addEventListener('click', e => {
+          e.stopPropagation();
+          const targetParent = parentNode || activeMindmapTree;
+          const newSib = { id: 'mm_' + genId(), text: 'New branch', doc: '', collapsed: false, children: [] };
+          if(parentNode){
+            const idx = parentNode.children.indexOf(node);
+            parentNode.children.splice(idx + 1, 0, newSib);
+          } else {
+            activeMindmapTree.children = activeMindmapTree.children || [];
+            activeMindmapTree.children.push(newSib);
+          }
           selectedMindmapNodeId = newSib.id;
           layoutAndRenderMindmap();
           scheduleSave();
-        } else {
-          node.children = node.children || [];
-          const newC = { id: 'mm_' + genId(), text: 'New branch', collapsed: false, children: [] };
-          node.children.push(newC);
-          selectedMindmapNodeId = newC.id;
-          layoutAndRenderMindmap();
-          scheduleSave();
-        }
-      });
-
-      if(node.id !== 'root'){
-        actions.querySelector('.btn-del').addEventListener('click', e => {
-          e.stopPropagation();
-          if(parentNode){
-            parentNode.children = parentNode.children.filter(c => c.id !== node.id);
-            selectedMindmapNodeId = parentNode.id;
-            layoutAndRenderMindmap();
-            scheduleSave();
-          }
         });
+
+        actions.querySelector('.btn-node-doc').addEventListener('click', e => {
+          e.stopPropagation();
+          openNodeDocument(node);
+        });
+
+        if(node.id !== 'root'){
+          actions.querySelector('.btn-del').addEventListener('click', e => {
+            e.stopPropagation();
+            if(parentNode){
+              parentNode.children = parentNode.children.filter(c => c.id !== node.id);
+              selectedMindmapNodeId = parentNode.id;
+              layoutAndRenderMindmap();
+              scheduleSave();
+            }
+          });
+        }
+
+        el.appendChild(actions);
+
+        el.addEventListener('click', e => {
+          e.stopPropagation();
+          selectedMindmapNodeId = node.id;
+          document.querySelectorAll('.mm-node').forEach(n => n.classList.remove('selected'));
+          el.classList.add('selected');
+        });
+
+        mmNodesLayer.appendChild(el);
       }
 
-      el.appendChild(actions);
+      // Update Node Content
+      const textSpan = el.querySelector('.mm-text');
+      if(textSpan && textSpan.textContent !== node.text) textSpan.textContent = node.text;
 
-      el.addEventListener('click', e => {
-        e.stopPropagation();
-        selectedMindmapNodeId = node.id;
-        document.querySelectorAll('.mm-node').forEach(n => n.classList.remove('selected'));
-        el.classList.add('selected');
+      // Update / Inject Document Indicator Badge
+      let docBadge = el.querySelector('.mm-doc-badge');
+      if(node.doc && node.doc.trim()){
+        if(!docBadge){
+          docBadge = document.createElement('span');
+          docBadge.className = 'mm-doc-badge';
+          docBadge.innerHTML = '📝 <span style="font-size:9.5px; opacity:0.8;">Doc</span>';
+          docBadge.addEventListener('click', e => {
+            e.stopPropagation();
+            openNodeDocument(node);
+          });
+          el.insertBefore(docBadge, el.querySelector('.mm-node-actions'));
+        }
+      } else if(docBadge){
+        docBadge.remove();
+      }
+
+      // Update / Inject Collapse Badge
+      let badge = el.querySelector('.mm-toggle-badge');
+      if(node.children && node.children.length > 0){
+        if(!badge){
+          badge = document.createElement('div');
+          badge.className = 'mm-toggle-badge';
+          badge.addEventListener('click', e => {
+            e.stopPropagation();
+            node.collapsed = !node.collapsed;
+            layoutAndRenderMindmap();
+            scheduleSave();
+          });
+          el.insertBefore(badge, el.querySelector('.mm-node-actions'));
+        }
+        badge.textContent = node.collapsed ? '>' : '<';
+        badge.title = node.collapsed ? ('Expand ' + node.children.length + ' branches') : 'Collapse branches';
+      } else if(badge){
+        badge.remove();
+      }
+
+      // Animate to target position
+      requestAnimationFrame(() => {
+        el.classList.remove('mm-entering');
+        el.className = 'mm-node mm-level-' + Math.min(4, node._depth) + (node.id === selectedMindmapNodeId ? ' selected' : '');
+        el.style.left = node._x + 'px';
+        el.style.top = (node._y - 20) + 'px';
       });
 
-      mmNodesLayer.appendChild(el);
-
-      // Draw curved bezier branches
       if(parentNode){
-        const pW = parentNode._w || 180;
-        const pX = parentNode._x + pW;
-        const pY = parentNode._y;
-        const cX = node._x;
-        const cY = node._y;
-        
-        const midX = (pX + cX) / 2;
-        const pathData = 'M ' + pX + ' ' + pY + ' C ' + midX + ' ' + pY + ', ' + midX + ' ' + cY + ', ' + cX + ' ' + cY;
-        
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', pathData);
-        path.setAttribute('class', 'mm-branch-curve level-' + Math.min(3, parentNode._depth));
-        mmSvg.appendChild(path);
+        connections.push({ from: parentNode, to: node });
       }
 
       if(!node.collapsed && node.children){
@@ -3594,131 +3786,121 @@
 
     renderNodeRecursive(activeMindmapTree, null);
 
-    // Measure exact node widths for perfect SVG connection coordinates
-    requestAnimationFrame(() => {
-      mmNodesLayer.querySelectorAll('.mm-node').forEach(el => {
-        const id = el.dataset.id;
-        function setW(n){
-          if(n.id === id){ n._w = el.offsetWidth; return true; }
-          if(n.children) for(const c of n.children) if(setW(c)) return true;
-          return false;
-        }
-        setW(activeMindmapTree);
-      });
+    // Smoothly exit collapsed / deleted nodes
+    mmNodesLayer.querySelectorAll('.mm-node').forEach(nodeEl => {
+      const id = nodeEl.dataset.id;
+      if(!visibleNodeIds.has(id)){
+        nodeEl.classList.add('mm-leaving');
+        setTimeout(() => { if(nodeEl.parentNode) nodeEl.remove(); }, 320);
+      }
+    });
+
+    // Animate SVG Bezier Curves continuously during transition
+    renderMindmapSvgCurves(connections);
+    let startT = performance.now();
+    cancelAnimationFrame(mmAnimationRaf);
+    function animateCurves(){
+      renderMindmapSvgCurves(connections);
+      if(performance.now() - startT < 360){
+        mmAnimationRaf = requestAnimationFrame(animateCurves);
+      }
+    }
+    mmAnimationRaf = requestAnimationFrame(animateCurves);
+  }
+
+  function renderMindmapSvgCurves(connections){
+    mmSvg.innerHTML = '';
+    connections.forEach(conn => {
+      const fromEl = mmNodesLayer.querySelector('[data-id="' + conn.from.id + '"]');
+      const toEl = mmNodesLayer.querySelector('[data-id="' + conn.to.id + '"]');
+      
+      const pX = fromEl ? (parseFloat(fromEl.style.left) + fromEl.offsetWidth) : (conn.from._x + 180);
+      const pY = fromEl ? (parseFloat(fromEl.style.top) + fromEl.offsetHeight / 2) : conn.from._y;
+      const cX = toEl ? parseFloat(toEl.style.left) : conn.to._x;
+      const cY = toEl ? (parseFloat(toEl.style.top) + toEl.offsetHeight / 2) : conn.to._y;
+
+      const midX = (pX + cX) / 2;
+      const pathData = 'M ' + pX + ' ' + pY + ' C ' + midX + ' ' + pY + ', ' + midX + ' ' + cY + ', ' + cX + ' ' + cY;
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', pathData);
+      path.setAttribute('class', 'mm-branch-curve level-' + Math.min(3, conn.from._depth));
+      mmSvg.appendChild(path);
     });
   }
 
-  // Pan & Zoom in Mindmap
-  let mmPanState = null;
-  mmViewport.addEventListener('pointerdown', e => {
-    if(e.target.closest('.mm-node')) return;
-    selectedMindmapNodeId = null;
-    document.querySelectorAll('.mm-node').forEach(n => n.classList.remove('selected'));
-    
-    mmPanState = { startX: e.clientX, startY: e.clientY, ox: mmTransform.x, oy: mmTransform.y };
-    mmViewport.classList.add('panning');
-  });
 
-  mmViewport.addEventListener('pointermove', e => {
-    if(!mmPanState) return;
-    mmTransform.x = mmPanState.ox + (e.clientX - mmPanState.startX);
-    mmTransform.y = mmPanState.oy + (e.clientY - mmPanState.startY);
-    applyMmTransform();
-  });
 
-  function endMmPan(){
-    if(mmPanState){ mmPanState = null; mmViewport.classList.remove('panning'); }
+  // Node Document / Explanation Note Controller
+  let activeDocNode = null;
+  const mmDocModal = document.getElementById('mm-doc-modal');
+  const mmDocNodeTitle = document.getElementById('mm-doc-node-title');
+  const mmDocEditor = document.getElementById('mm-doc-editor');
+  const mmDocMetaInfo = document.getElementById('mm-doc-meta-info');
+
+  function openNodeDocument(node){
+    activeDocNode = node;
+    mmDocNodeTitle.textContent = node.text || 'Topic Document';
+    mmDocEditor.value = node.doc || '';
+    updateDocWordCount();
+    mmDocModal.classList.add('active');
+    setTimeout(() => mmDocEditor.focus(), 50);
   }
-  mmViewport.addEventListener('pointerup', endMmPan);
-  mmViewport.addEventListener('pointercancel', endMmPan);
 
-  mmViewport.addEventListener('wheel', e => {
-    e.preventDefault();
-    const rect = mmViewport.getBoundingClientRect();
-    const cx = e.clientX - rect.left;
-    const cy = e.clientY - rect.top;
-    let scale = mmTransform.scale * (1 - e.deltaY * 0.0016);
-    scale = Math.min(2.5, Math.max(0.35, scale));
-    mmTransform.scale = scale;
-    applyMmTransform();
-  }, { passive: false });
+  function closeNodeDocument(){
+    if(activeDocNode){
+      activeDocNode.doc = mmDocEditor.value.trim();
+      scheduleSave();
+      triggerCloudSync(false);
+      layoutAndRenderMindmap();
+    }
+    mmDocModal.classList.remove('active');
+    activeDocNode = null;
+  }
 
-  // Mindmap Controls & Auto-Generate
-  document.getElementById('btn-mm-add-root').addEventListener('click', ()=>{
-    if(!activeMindmapTree) return;
-    activeMindmapTree.children = activeMindmapTree.children || [];
-    const newBranch = { id: 'mm_' + genId(), text: 'New Strategy Branch', collapsed: false, children: [] };
-    activeMindmapTree.children.push(newBranch);
-    selectedMindmapNodeId = newBranch.id;
-    layoutAndRenderMindmap();
-    scheduleSave();
+  function updateDocWordCount(){
+    const text = mmDocEditor.value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    const readingTime = Math.max(1, Math.ceil(words / 200));
+    mmDocMetaInfo.textContent = words + ' words · ~' + readingTime + ' min read';
+  }
+
+  mmDocEditor.addEventListener('input', () => {
+    updateDocWordCount();
+    if(activeDocNode){
+      activeDocNode.doc = mmDocEditor.value;
+    }
   });
 
-  document.getElementById('btn-mm-autogen').addEventListener('click', ()=>{
-    const curTopic = topicsIndex.find(t=>t.id===currentTopicId);
-    const topicName = curTopic ? curTopic.name : 'Research Workspace';
-    
-    // Harvest books and articles into structured mindmap branches
-    const newTree = {
-      id: 'root',
-      text: topicName,
-      collapsed: false,
-      children: []
-    };
-
-    if(books.length > 0){
-      const booksBranch = {
-        id: 'mm_books',
-        text: '📖 Books & Literature (' + books.length + ')',
-        collapsed: false,
-        children: books.map(b => ({
-          id: 'mm_b_' + b.id,
-          text: b.title + ' (' + b.author + ')',
-          collapsed: false,
-          children: (b.bookmarks || []).map((bm, idx) => ({
-            id: 'mm_bm_' + idx,
-            text: 'p.' + bm.page + ': ' + bm.note,
-            children: []
-          }))
-        }))
-      };
-      newTree.children.push(booksBranch);
-    }
-
-    if(articles.length > 0){
-      const articlesBranch = {
-        id: 'mm_articles',
-        text: '📰 Articles & Papers (' + articles.length + ')',
-        collapsed: false,
-        children: articles.map(a => ({
-          id: 'mm_a_' + a.id,
-          text: a.title,
-          collapsed: false,
-          children: a.notes ? [{ id:'mm_an_'+a.id, text: a.notes.slice(0, 80) + '...', children:[] }] : []
-        }))
-      };
-      newTree.children.push(articlesBranch);
-    }
-
-    if(state.nodes && state.nodes.length > 0){
-      const canvasBranch = {
-        id: 'mm_canvas',
-        text: '🔬 Canvas Concepts (' + state.nodes.length + ')',
-        collapsed: false,
-        children: state.nodes.slice(0, 6).map(n => ({
-          id: 'mm_n_' + n.id,
-          text: n.text || (n.type === 'browser' ? 'Browser Window' : 'Whiteboard Idea'),
-          children: []
-        }))
-      };
-      newTree.children.push(canvasBranch);
-    }
-
-    state.mindmapTree = newTree;
-    activeMindmapTree = newTree;
-    layoutAndRenderMindmap();
-    scheduleSave();
+  document.getElementById('btn-close-mm-doc').addEventListener('click', closeNodeDocument);
+  document.getElementById('btn-save-mm-doc').addEventListener('click', closeNodeDocument);
+  mmDocModal.addEventListener('click', e => {
+    if(e.target === mmDocModal) closeNodeDocument();
   });
+
+  document.querySelectorAll('.mm-doc-tool-btn[data-tag]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag;
+      const start = mmDocEditor.selectionStart;
+      const end = mmDocEditor.selectionEnd;
+      const val = mmDocEditor.value;
+      if(tag === '**' || tag === '`'){
+        mmDocEditor.value = val.substring(0, start) + tag + (val.substring(start, end) || 'text') + tag + val.substring(end);
+      } else {
+        mmDocEditor.value = val.substring(0, start) + '\n' + tag + val.substring(start);
+      }
+      updateDocWordCount();
+      mmDocEditor.focus();
+    });
+  });
+
+  document.getElementById('btn-copy-doc-md').addEventListener('click', () => {
+    navigator.clipboard.writeText(mmDocEditor.value);
+    const orig = document.getElementById('btn-copy-doc-md').textContent;
+    document.getElementById('btn-copy-doc-md').textContent = '✓ Copied!';
+    setTimeout(() => document.getElementById('btn-copy-doc-md').textContent = orig, 1500);
+  });
+
 
   // Export Mindmap to Freeform Canvas
   document.getElementById('btn-mm-to-canvas').addEventListener('click', ()=>{
@@ -3878,5 +4060,39 @@
   window.addEventListener('resize', renderEdges);
 })();
 </script>
+
+<!-- NODE DOCUMENT / NOTE WRITUP MODAL -->
+<div id="mm-doc-modal">
+  <div class="mm-doc-dialog">
+    <div class="mm-doc-header">
+      <div class="mm-doc-title-row">
+        <span style="font-size:16px;">📝</span>
+        <div>
+          <h2 class="mm-doc-title" id="mm-doc-node-title">Node Writeup & Document</h2>
+          <div class="mm-doc-meta" id="mm-doc-meta-info">0 words · ~1 min read</div>
+        </div>
+      </div>
+      <button class="btn-outline" id="btn-close-mm-doc" style="height:30px; font-size:12px;">✕ Close</button>
+    </div>
+    <div class="mm-doc-toolbar">
+      <button class="mm-doc-tool-btn" data-tag="# ">H1</button>
+      <button class="mm-doc-tool-btn" data-tag="## ">H2</button>
+      <button class="mm-doc-tool-btn" data-tag="**">Bold</button>
+      <button class="mm-doc-tool-btn" data-tag="- ">Bullet</button>
+      <button class="mm-doc-tool-btn" data-tag="> ">Quote</button>
+      <button class="mm-doc-tool-btn" data-tag="`">Code</button>
+      <div style="flex:1;"></div>
+      <button class="mm-doc-tool-btn" id="btn-copy-doc-md">📋 Copy Text</button>
+    </div>
+    <div class="mm-doc-body">
+      <textarea class="mm-doc-textarea" id="mm-doc-editor" placeholder="Write comprehensive explanations, research notes, breakdown, or detailed thoughts for this topic..."></textarea>
+    </div>
+    <div class="mm-doc-footer">
+      <span>Auto-saved to cloud</span>
+      <button class="btn-primary" id="btn-save-mm-doc" style="height:28px; font-size:12px;">Done</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
