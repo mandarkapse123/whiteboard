@@ -99,7 +99,247 @@
 
 
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg);font-family:'Inter',sans-serif;color:var(--ink);transition:background-color .2s, color .2s;}
+
+  /* ==========================================================================
+     OFFICIAL SHADCN/UI COMPONENT SYSTEM (ui.shadcn.com/docs/components/base)
+     ========================================================================== */
+
+  /* 1. TEXTAREA (ui.shadcn.com/docs/components/base/textarea) */
+  textarea, .textarea, .mm-doc-textarea, .modal-field textarea {
+    display: flex;
+    min-height: 80px;
+    width: 100%;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border);
+    background-color: transparent;
+    padding: 8px 12px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--foreground);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+  }
+  textarea:focus-visible, .textarea:focus-visible, .mm-doc-textarea:focus-visible, .modal-field textarea:focus-visible {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 1px var(--ring);
+  }
+  textarea::placeholder, .modal-field textarea::placeholder {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  textarea:disabled, .modal-field textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* 2. INPUT (ui.shadcn.com/docs/components/base/input) */
+  input[type="text"], input[type="number"], input[type="url"], input[type="search"], .input, .modal-field input {
+    display: flex;
+    height: 36px;
+    width: 100%;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border);
+    background-color: transparent;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--foreground);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+  }
+  input:focus-visible, .input:focus-visible, .modal-field input:focus-visible {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 1px var(--ring);
+  }
+  input::placeholder, .modal-field input::placeholder {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* 3. BUTTONS (ui.shadcn.com/docs/components/base/button) */
+  .btn-primary, button.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: calc(var(--radius) - 2px);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+    outline: none;
+    cursor: pointer;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    border: 1px solid transparent;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    height: 36px;
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-0.5px);
+  }
+  .btn-primary:active {
+    transform: translateY(0.5px);
+  }
+
+  .btn-secondary, button.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: calc(var(--radius) - 2px);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+    outline: none;
+    cursor: pointer;
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
+    border: 1px solid transparent;
+    height: 36px;
+    padding: 0 14px;
+    gap: 8px;
+  }
+  .btn-secondary:hover {
+    opacity: 0.85;
+    background-color: var(--accent);
+  }
+
+  .btn-outline, button.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: calc(var(--radius) - 2px);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+    outline: none;
+    cursor: pointer;
+    background-color: var(--card);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    height: 36px;
+    padding: 0 14px;
+    gap: 8px;
+  }
+  .btn-outline:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  .btn-destructive, button.btn-destructive {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: calc(var(--radius) - 2px);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+    outline: none;
+    cursor: pointer;
+    background-color: var(--destructive);
+    color: var(--destructive-foreground);
+    border: 1px solid transparent;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    height: 36px;
+    padding: 0 14px;
+    gap: 8px;
+  }
+
+  /* 4. DIALOG / MODAL (ui.shadcn.com/docs/components/base/dialog) */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-dialog {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 520px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .modal-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .modal-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  /* 5. CARDS (ui.shadcn.com/docs/components/base/card) */
+  .book-card, .article-card {
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--card-foreground);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    transition: all 0.15s ease;
+  }
+  .book-card:hover, .article-card:hover {
+    border-color: var(--ring);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* 6. BADGES (ui.shadcn.com/docs/components/base/badge) */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: colors 0.15s ease;
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
+  }
+
+    html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg);font-family:'Inter',sans-serif;color:var(--ink);transition:background-color .2s, color .2s;}
 
   #app{display:flex; flex-direction:column; width:100vw; height:100vh; position:relative; overflow:hidden;}
 
